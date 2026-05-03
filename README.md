@@ -176,9 +176,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📧 Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_twitter)
+alikiani78@gmail.com
 
-Project Link: [https://github.com/your-username/job-board-saas](https://github.com/your-username/job-board-saas)
+Project Link: [https://github.com/ali7887/EuroJobs.git](https://github.com/ali7887/EuroJobs.git)
 
 ---
 
