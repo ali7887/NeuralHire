@@ -1,14 +1,15 @@
 // src/lib/db/schema/users.ts
-import { pgTable, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, uuid, pgTable, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-
+export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const users = pgTable("users", {
-  id: text("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   name: text("name"),
   email: text("email").notNull().unique(),
-  role: text("role").notNull().default("user"),
+
   passwordHash: text("password_hash").notNull(),
   emailVerified: boolean("email_verified").notNull().default(false),
+  role: roleEnum("role").default("user").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

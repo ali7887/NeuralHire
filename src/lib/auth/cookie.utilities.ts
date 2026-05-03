@@ -45,3 +45,15 @@ export function getRefreshTokenFromRequest(
 ): string | undefined {
   return getRefreshTokenFromCookie(request);
 }
+
+
+
+export function clearAccessTokenCookie(res: NextResponse) {
+  res.cookies.set("accessToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
+}

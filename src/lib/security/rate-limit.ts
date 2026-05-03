@@ -1,51 +1,17 @@
-// Ultra‑Fast In‑Memory Rate Limiter (Edge‑Compatible)
-// Ali — حرفه‌ای ترین نسخه برای Next.js 15
+const requests = new Map<string, { count: number; start: number }>();
 
-type RateLimitOptions = {
-  windowMs: number;   // Example: 60000 = 1 minute
-  max: number;        // Example: 10 requests
-  keyGenerator?: (req: Request) => string;
-};
+export function rateLimit(ip: string, limit = 10, windowMs = 60000) {
+  const now = Date.now();
 
-const store = new Map<string, { count: number; expiresAt: number }>();
+  const data = requests.get(ip) || { count: 0, start: now };
 
-export function rateLimit(options: RateLimitOptions) {
-  return (req: Request) => {
-    const key =
-      options.keyGenerator?.(req) ||
-      req.headers.get("x-forwarded-for") ||
-      "anonymous";
+  if (now - data.start > windowMs) {
+    data.count = 0;
+    data.start = now;
+  }
 
-    const now = Date.now();
+  data.count++;
+  requests.set(ip, data);
 
-    const entry = store.get(key);
-
-    if (!entry) {
-      store.set(key, {
-        count: 1,
-        expiresAt: now + options.windowMs,
-      });
-      return;
-    }
-
-    if (entry.expiresAt < now) {
-      // Reset window
-      store.set(key, {
-        count: 1,
-        expiresAt: now + options.windowMs,
-      });
-      return;
-    }
-
-    entry.count++;
-
-    if (entry.count > options.max) {
-      throw new Response(
-        JSON.stringify({
-          error: "Too many requests. Please try again later.",
-        }),
-        { status: 429 }
-      );
-    }
-  };
+  return data.count <= limit;
 }

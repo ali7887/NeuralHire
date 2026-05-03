@@ -6,20 +6,17 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, User } from "lucide-react";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
+import toast from "react-hot-toast";
 
 export default function RegisterForm() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -32,14 +29,15 @@ export default function RegisterForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Registration failed");
+        toast.error(data.message || "Registration failed");
         setLoading(false);
         return;
       }
 
+      toast.success("Account created successfully!");
       router.push("/login");
     } catch {
-      setError("Network error");
+      toast.error("Network error, please try again");
     }
 
     setLoading(false);
@@ -50,16 +48,12 @@ export default function RegisterForm() {
       <h2 className={styles.title}>Create an account</h2>
       <p className={styles.subtitle}>Join and start using the platform</p>
 
-      {error && <div className={styles.error}>{error}</div>}
-
       <Input
         label="Full Name"
         icon={<User size={18} />}
         type="text"
         value={name}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setName(e.target.value)
-        }
+        onChange={(e) => setName(e.target.value)}
         placeholder="John Doe"
       />
 
@@ -68,9 +62,7 @@ export default function RegisterForm() {
         icon={<Mail size={18} />}
         type="email"
         value={email}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setEmail(e.target.value)
-        }
+        onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
       />
 
@@ -79,22 +71,16 @@ export default function RegisterForm() {
         icon={<Lock size={18} />}
         type="password"
         value={password}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setPassword(e.target.value)
-        }
+        onChange={(e) => setPassword(e.target.value)}
         placeholder="••••••••"
       />
 
-      <Button type="submit" variant="secondary"
-        size="md"
-
-        loading={loading} fullWidth>
+      <Button type="submit" variant="secondary" size="md" loading={loading} fullWidth>
         Create Account
       </Button>
 
       <div className={styles.switch}>
-        Already have an account?
-        <a href="/login"> Sign in</a>
+        Already have an account? <a href="/login">Sign in</a>
       </div>
     </form>
   );
