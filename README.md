@@ -1,135 +1,185 @@
-AI Job Board SaaS
-A minimal yet production‑ready AI-powered Job Board SaaS built with Next.js 15, TypeScript, Drizzle ORM, and PostgreSQL.
+AI Job/Recruitment Board SaaS
+A production-ready, AI-powered job board platform built with modern web technologies
 
-The project demonstrates a modern full‑stack architecture including authentication, role-based access control, admin dashboard, and AI-powered features.
 
-This project was built as a portfolio-grade SaaS application focusing on clean architecture, security best practices, and practical functionality.
 
-Features
-Authentication & Security
-JWT Authentication
-Secure HTTP-only cookies
-Refresh token system
-Role Based Access Control (RBAC)
-Rate limiting for authentication endpoints
-Admin route protection via middleware
-User System
-User registration
-Secure login/logout
-Session management
-Role support (user / admin)
-Job Board Core
-Post jobs
-Browse jobs
-Apply for jobs
-Company profiles
-Admin Panel
-Admin dashboard
-Protected admin routes
-Basic platform monitoring
-AI Features
-AI generated job descriptions
-Semantic job search
-AI candidate matching
-Tech Stack
-Frontend
-Next.js 15 (App Router)
-React
-TypeScript
-TailwindCSS
-Backend
-Next.js API Routes
-Drizzle ORM
-PostgreSQL
-Authentication
-JWT (jose)
-Secure cookies
-Refresh tokens
-AI
-OpenAI API integration
-Project Structure
-text
-src
- ├ app
- │  ├ api
- │  │  ├ auth
- │  │  ├ jobs
- │  │  └ ai
- │  ├ admin
- │  │  └ dashboard
- │  └ (public pages)
- │
- ├ db
- │  ├ schema
- │  └ migrations
- │
- ├ modules
- │  └ auth
- │
- ├ lib
- │  ├ security
- │  └ utils
- │
- └ components
-Environment Variables
-Create a .env.local file:
+A full-stack SaaS application demonstrating enterprise-grade architecture with authentication, role-based access control, admin dashboard, and AI-powered job matching capabilities.
 
-text
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+✨ Features
+🔐 Authentication & Security
+JWT-based authentication with secure HTTP-only cookies
+Refresh token rotation for enhanced security
+Role-Based Access Control (RBAC) for user and admin roles
+Rate limiting on authentication endpoints
+Middleware-protected routes for admin access
+👥 User Management
+User registration and secure login/logout
+Persistent session management
+Multi-role support (User/Admin)
+💼 Job Board Core
+Post and browse job listings
+One-click job applications
+Company profile pages
+Job categorization and filtering
+🎛️ Admin Dashboard
+Protected admin panel
+Platform monitoring and analytics
+User and job management
+🤖 AI-Powered Features
+AI-generated job descriptions using OpenAI
+Semantic job search for better matching
+Intelligent candidate-job matching
+🛠️ Tech Stack
+Layer	Technologies
+Frontend	Next.js 15 (App Router), React, TypeScript, TailwindCSS
+Backend	Next.js API Routes, Drizzle ORM, PostgreSQL
+Authentication	JWT (jose), HTTP-only cookies, Refresh tokens
+AI	OpenAI API
+📁 Project Structure
+src/
 
-JWT_SECRET=your-secret-key
+├── app/
 
-OPENAI_API_KEY=your-openai-key
+│ ├── api/
 
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+│ │ ├── auth/ # Authentication endpoints
+
+│ │ ├── jobs/ # Job CRUD operations
+
+│ │ └── ai/ # AI-powered features
+
+│ ├── admin/
+
+│ │ └── dashboard/ # Admin panel
+
+│ └── (public)/ # Public pages
+
+├── db/
+
+│ ├── schema/ # Database schema definitions
+
+│ └── migrations/ # Database migrations
+
+├── modules/
+
+│ └── auth/ # Authentication logic
+
+├── lib/
+
+│ ├── security/ # Security utilities
+
+│ └── utils/ # Helper functions
+
+└── components/ # Reusable UI components
+
+🚀 Getting Started
+Prerequisites
+Node.js 18+
+PostgreSQL database
+OpenAI API key
 Installation
-Clone the repository:
+Clone the repository
+bash
+   git clone https://github.com/your-username/job-board-saas.git
+   cd job-board-saas
+Install dependencies
+bash
+   npm install
+Configure environment variables
 
-text
-git clone https://github.com/your-username/job-board-saas.git
-Install dependencies:
+Create a .env.local file in the root directory:
 
-text
-npm install
-Run database migrations:
+env
+   DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+   JWT_SECRET=your-secret-key-min-32-characters
+   OPENAI_API_KEY=sk-your-openai-key
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+Run database migrations
+bash
+   npx drizzle-kit push
+Start the development server
+bash
+   npm run dev
+Open your browser
 
-text
-npx drizzle-kit push
-Start development server:
+Navigate to http://localhost:3000
 
-text
-npm run dev
-Open the app:
+🔑 Admin Access
+Admin routes are protected via middleware and require a user with the admin role.
 
-text
-http://localhost:3000
-Admin Access
-Admin routes are protected using middleware.
+Admin Dashboard: /admin/dashboard
 
-text
-/admin/dashboard
-Access requires a user with the admin role.
+To create an admin user, manually update the user’s role in the database:
 
-Security Highlights
-HTTP-only authentication cookies
-Refresh token system
-Role-based access control
-Rate limiting on login endpoint
-Middleware route protection
-Purpose of This Project
-This project was built as a portfolio SaaS application to demonstrate:
 
-Full‑stack Next.js architecture
-Secure authentication systems
-Modern database ORM usage
-API design
-Admin dashboard implementation
-AI feature integration
-Future Improvements
-Resume parser
-Advanced job search filters
-Email notifications
-Subscription plans
-Analytics dashboard
-License
-MIT License
+
+
+UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
+
+---
+
+## 🔒 Security Features
+
+- ✅ HTTP-only cookies for token storage
+- ✅ Automatic refresh token rotation
+- ✅ Role-based route protection
+- ✅ Rate limiting on sensitive endpoints
+- ✅ Middleware-based authentication guards
+- ✅ SQL injection prevention via Drizzle ORM
+- ✅ XSS protection through React's built-in escaping
+
+---
+
+## 🎯 Project Goals
+
+This project was built as a **portfolio-grade SaaS application** to demonstrate:
+
+- Modern full-stack Next.js architecture
+- Secure authentication and authorization systems
+- Type-safe database operations with Drizzle ORM
+- RESTful API design patterns
+- Admin dashboard implementation
+- AI/ML integration in web applications
+- Production-ready code structure and best practices
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Resume parser with AI extraction
+- [ ] Advanced search filters (location, salary, remote)
+- [ ] Email notifications for job applications
+- [ ] Subscription plans with Stripe integration
+- [ ] Analytics dashboard for employers
+- [ ] Real-time chat between employers and candidates
+- [ ] Mobile app (React Native)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📧 Contact
+
+Your Name - [@your_twitter](https://twitter.com/your_twitter)
+
+Project Link: [https://github.com/your-username/job-board-saas](https://github.com/your-username/job-board-saas)
+
+---
+
+<p alig with ❤️ using Next.js and TypeScript</p> TypeScript</p>
