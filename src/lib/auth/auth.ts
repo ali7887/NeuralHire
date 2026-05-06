@@ -1,37 +1,26 @@
-// src/lib/auth/auth.ts
 import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
+import jwt from "jsonwebtoken";
 
-const secretString = process.env.JWT_SECRET;
-if (!secretString) {
-  throw new Error("JWT_SECRET is not defined in environment variables");
-}
+type Session = {
+  userId: string;
+  email: string;
+  role: "user" | "admin";
+} | null;
 
-const JWT_SECRET = new TextEncoder().encode(secretString);
+export async function auth(): Promise<Session> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
 
-export async function auth() {
-  const cookieStore = await cookies(); 
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  if (!accessToken) return null;
+  if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(accessToken, JWT_SECRET);
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as Session;
 
-    // تایپ گارد برای اطمینان از ساختار پPayload
-    if (
-      typeof payload.userId !== "string" ||
-      typeof payload.role !== "string"
-    ) {
-      return null;
-    }
-
-    return {
-      userId: payload.userId,
-      role: payload.role,
-    };
-  } catch (error) {
-    // در صورت انقضا یا نامعتبر بودن توکن
+    return payload;
+  } catch {
     return null;
   }
 }

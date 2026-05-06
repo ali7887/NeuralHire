@@ -1,22 +1,22 @@
+import { NextResponse, NextRequest } from "next/server";
 import { applicationService } from "@/lib/services/application.service";
-import { auth } from "@/lib/auth/auth";
-import { NextResponse } from "next/server";
+import { getUserFromRequest } from "@/lib/auth/get-user-from-request";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const user = await getUserFromRequest(req);
 
-  const session = await auth();
-
-  if (!session?.userId) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  };
-  const userId = session?.userId;
+  }
 
-  if (!userId)
-    return new Response("Unauthorized", { status: 401 });
+  try {
+    const apps = await applicationService.getUserApplications(user.userId);
 
-  const apps = await applicationService.getUserApplications(userId);
-
-  return Response.json({
-    applications: apps,
-  });
+    return NextResponse.json({
+      applications: apps,
+    });
+  } catch (error) {
+    console.error("ME_APPLICATIONS_ERROR:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }

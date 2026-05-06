@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth/require-admin";
-import { authErrorResponse } from "@/lib/api/auth-error-response";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
-import { eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth/require-admin";
+import { authErrorResponse } from "@/lib/api/auth-error-response";
 
 export const runtime = "nodejs";
 
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const [user] = await db
+    const result = await db
       .select({
         id: users.id,
         email: users.email,
@@ -23,16 +23,11 @@ export async function GET(req: NextRequest) {
         createdAt: users.createdAt,
       })
       .from(users)
-      .where(eq(users.id, auth.user.userId))
-      .limit(1);
+      .orderBy(desc(users.createdAt));
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ user });
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("ADMIN_PROFILE_ERROR:", error);
+    console.error("ADMIN_USERS_ERROR:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

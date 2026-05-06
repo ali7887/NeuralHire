@@ -40,7 +40,7 @@ export default function JobForm({ onSuccess, initialData }: JobFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form autoComplete="off" onSubmit={handleSubmit} className={styles.form}>
 
       <input name="title" value={form.title ?? ""} onChange={handleChange} placeholder="Job Title" className={styles.input} />
 

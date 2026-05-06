@@ -1,41 +1,53 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { SignJWT, jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
+import { getRefreshTokenFromRequest } from "@/lib/auth/token.extractor";
+import { authService } from "@/lib/services/auth.service";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-
-export async function POST() {
-  const cookieStore = await cookies();
-  const refreshToken = cookieStore.get("refreshToken")?.value;
-
-  if (!refreshToken) {
-    return NextResponse.json({ error: "No refresh token" }, { status: 401 });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const { payload } = await jwtVerify(refreshToken, secret);
+    const oldRefreshToken = getRefreshTokenFromRequest(req);
+    if (!oldRefreshToken) {
+      return NextResponse.json({ error: "Missing refresh token" }, { status: 401 });
+    }
 
-    const newAccessToken = await new SignJWT({
-      userId: payload.userId,
-      role: payload.role,
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("10m")
-      .sign(secret);
+    const payload = await authService.verifyRefreshToken(oldRefreshToken);
 
-    const response = NextResponse.json({
-      success: true,
-    });
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, payload.userId))
+      .limit(1);
 
-    response.cookies.set("accessToken", newAccessToken, {
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const newRefreshToken = await authService.rotateRefreshToken(oldRefreshToken);
+    const { accessToken } = await authService.loginUser(user);
+
+    const res = NextResponse.json({ success: true });
+
+    res.cookies.set("refreshToken", newRefreshToken, {
       httpOnly: true,
+      secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 10,
+      maxAge: 60 * 60 * 24 * 30,
     });
 
-    return response;
-  } catch {
-    return NextResponse.json({ error: "Invalid refresh token" }, { status: 401 });
+    res.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 15,
+    });
+
+    return res;
+  } catch (err) {
+    console.error("[REFRESH_ERROR]", err);
+    return NextResponse.json({ error: "Invalid refresh token" }, { status: 403 });
   }
 }

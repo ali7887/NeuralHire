@@ -65,7 +65,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   return (
-    <form className={styles.searchBar} onSubmit={handleSubmit}>
+    <form autoComplete="off" className={styles.searchBar} onSubmit={handleSubmit}>
       <div className={styles.searchBar__container}>
 
         <div className={styles.searchBar__field}>

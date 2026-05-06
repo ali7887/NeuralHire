@@ -8,6 +8,20 @@
       "when": 1777786883416,
       "tag": "0000_melodic_stature",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777988493699,
+      "tag": "0001_ordinary_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777988934619,
+      "tag": "0002_dark_arclight",
+      "breakpoints": true
     }
   ]
 }

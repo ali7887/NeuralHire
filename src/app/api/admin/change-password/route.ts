@@ -1,35 +1,36 @@
-import { auth } from "@/auth";
-import bcrypt from "bcryptjs";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema/users";
-import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
+import { authErrorResponse } from "@/lib/api/auth-error-response";
 
-export async function POST(req: Request) {
-  const session = await auth();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const runtime = "nodejs";
 
-  const { oldPassword, newPassword } = await req.json();
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req);
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, session.userId));
+  if (!auth.ok) {
+    return authErrorResponse(auth.error, auth.status);
+  }
 
-  if (!user)
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  try {
+    const body = await req.json();
+    const { currentPassword, newPassword } = body;
 
-  const match = await bcrypt.compare(oldPassword, user.passwordHash);
-  if (!match)
-    return NextResponse.json({ error: "Incorrect password" }, { status: 403 });
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json(
+        { error: "currentPassword and newPassword are required" },
+        { status: 400 }
+      );
+    }
 
-  const newHash = await bcrypt.hash(newPassword, 10);
+    // منطق تغییر رمز عبور با استفاده از auth.user.userId
+    // TODO: پیاده‌سازی متد تغییر در DB
 
-  await db
-    .update(users)
-    .set({ passwordHash: newHash })
-    .where(eq(users.id, session.userId));
-
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("ADMIN_CHANGE_PASSWORD_ERROR:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

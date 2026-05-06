@@ -28,7 +28,7 @@ export default function ApplicationForm({ jobId, onSuccess }: ApplicationFormPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form autoComplete="off" onSubmit={handleSubmit} className="space-y-4">
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}

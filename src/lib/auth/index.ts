@@ -1,2 +1,4 @@
 // src/lib/auth/index.ts
-export { auth } from "./auth";
+
+
+import { requireAdmin } from "@/lib/auth/require-admin";

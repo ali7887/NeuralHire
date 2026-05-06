@@ -1,40 +1,59 @@
-// src/lib/auth/cookie.utilities.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+/**
+ * Cookie names (single source of truth)
+ * IMPORTANT: keep these consistent across set/get/clear and routes.
+ */
+const ACCESS_COOKIE_NAME = "accessToken";
+const REFRESH_COOKIE_NAME = "refreshToken";
 
-const COOKIE_NAME = 'refresh_token';
-const COOKIE_PATH = '/api/auth';
-const MAX_AGE_DAYS = 7;
-const MAX_AGE_SECONDS = MAX_AGE_DAYS * 24 * 60 * 60;
+/**
+ * Cookie scope
+ * Refresh token is limited to auth endpoints to reduce exposure.
+ */
+const REFRESH_COOKIE_PATH = "/api/auth";
 
-export function setRefreshTokenCookie(
-  response: NextResponse,
-  token: string
-): void {
-  response.cookies.set(COOKIE_NAME, token, {
+/**
+ * Lifetimes
+ */
+const ACCESS_MAX_AGE_SECONDS = 60 * 60; // 1 hour
+const REFRESH_MAX_AGE_DAYS = 7;
+const REFRESH_MAX_AGE_SECONDS = REFRESH_MAX_AGE_DAYS * 24 * 60 * 60;
+
+/**
+ * Set Access Token cookie (httpOnly)
+ */
+export function setAccessTokenCookie(res: NextResponse, accessToken: string) {
+  res.cookies.set(ACCESS_COOKIE_NAME, accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: COOKIE_PATH,
-    maxAge: MAX_AGE_SECONDS,
+    sameSite: "strict",
+    path: "/",
+    maxAge: ACCESS_MAX_AGE_SECONDS,
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
-export function clearRefreshTokenCookie(response: NextResponse): void {
-  response.cookies.set(COOKIE_NAME, '', {
+/**
+ * Set Refresh Token cookie (httpOnly)
+ */
+export function setRefreshTokenCookie(res: NextResponse, refreshToken: string) {
+  res.cookies.set(REFRESH_COOKIE_NAME, refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: COOKIE_PATH,
-    maxAge: 0,
+    sameSite: "strict",
+    path: REFRESH_COOKIE_PATH,
+    maxAge: REFRESH_MAX_AGE_SECONDS,
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
+/**
+ * Read Refresh Token cookie from request
+ */
 export function getRefreshTokenFromCookie(
   request: NextRequest
 ): string | undefined {
-  return request.cookies.get(COOKIE_NAME)?.value;
+  return request.cookies.get(REFRESH_COOKIE_NAME)?.value;
 }
 
 /**
@@ -46,14 +65,28 @@ export function getRefreshTokenFromRequest(
   return getRefreshTokenFromCookie(request);
 }
 
-
-
+/**
+ * Clear Access Token cookie
+ */
 export function clearAccessTokenCookie(res: NextResponse) {
-  res.cookies.set("accessToken", "", {
+  res.cookies.set(ACCESS_COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
+    maxAge: 0,
+  });
+}
+
+/**
+ * Clear Refresh Token cookie
+ */
+export function clearRefreshTokenCookie(res: NextResponse) {
+  res.cookies.set(REFRESH_COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: REFRESH_COOKIE_PATH,
     maxAge: 0,
   });
 }

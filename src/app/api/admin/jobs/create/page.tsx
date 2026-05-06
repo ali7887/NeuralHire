@@ -15,7 +15,7 @@ export default function CreateJob() {
   }
 
   return (
-    <form onSubmit={submitHandler}>
+    <form autoComplete="off" onSubmit={submitHandler}>
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}

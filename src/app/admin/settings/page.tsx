@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import "@/styles/admin-settings.css"; // مهم: استایل‌های قدیمی را برگردان
+import "@/styles/admin-settings.css"; 
 
 export default function AdminSettingsPage() {
 
@@ -80,7 +80,7 @@ export default function AdminSettingsPage() {
         <div className="settings-card">
           <h2>Public Profile</h2>
 
-          <form onSubmit={updateProfile}>
+          <form autoComplete="off" onSubmit={updateProfile}>
 
             <div className="form-group">
               <label>Full Name</label>
@@ -109,7 +109,7 @@ export default function AdminSettingsPage() {
         <div className="settings-card">
           <h2>Security</h2>
 
-          <form onSubmit={changePassword}>
+          <form autoComplete="off" onSubmit={changePassword}>
 
             <div className="form-group">
               <label>Current Password</label>

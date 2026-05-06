@@ -2,7 +2,7 @@ import { createJob } from "./actions";
 
 export default function JobsPage() {
   return (
-    <form action={createJob} className="card">
+    <form autoComplete="off" action={createJob} className="card">
       <h3>Create Job</h3>
 
       <input name="title" placeholder="Job title" required />

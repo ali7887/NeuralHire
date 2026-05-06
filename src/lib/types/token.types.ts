@@ -2,24 +2,24 @@ export interface AccessTokenPayload {
   sub: string;
   userId: string;
   role: string;
-  type: 'access';
+  type: "access";
 }
 
 export interface RefreshTokenPayload {
   tokenId: string;
   userId: string;
-  type: 'refresh';
+  type: "refresh";
 }
 
 export interface StoredRefreshToken {
-  isRevoked: any;
   id: string;
   userId: string;
   tokenHash: string;
-  expiresAt: string;
-  createdAt: string;
-  revokedAt?: string;
-  replacedByTokenId?: string;
+  expiresAt: Date;
+  isRevoked: boolean;
+  createdAt: Date | null;
+  revokedAt: Date | null;
+  replacedByTokenId: string | null;
 }
 
 export interface TokenPair {

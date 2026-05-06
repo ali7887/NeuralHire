@@ -1,25 +1,41 @@
+// src/app/api/auth/logout-all/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/auth.guard";
-import { db } from "@/lib/db";
-import { refreshTokens } from "@/lib/db/schema/refresh_tokens";
-import { eq } from "drizzle-orm";
+import { authService } from "@/lib/services/auth.service";
 import {
   clearRefreshTokenCookie,
   clearAccessTokenCookie,
 } from "@/lib/auth/cookie.utilities";
 
-export async function POST(request: NextRequest) {
-  const ctx = await requireAuth(request);
+export const runtime = "nodejs";
 
-  await db
-    .update(refreshTokens)
-    .set({ isRevoked: true })
-    .where(eq(refreshTokens.userId, ctx.userId));
+export async function POST(req: NextRequest) {
+  try {
+    const ctx = await requireAuth(req);
 
-  const res = NextResponse.json({ success: true });
+    const revokedCount = await authService.logoutAll(ctx.userId);
 
-  clearRefreshTokenCookie(res);
-  clearAccessTokenCookie(res);
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "All sessions revoked",
+        affectedRows: revokedCount,
+      },
+      { status: 200 }
+    );
 
-  return res;
+    clearRefreshTokenCookie(response);
+    clearAccessTokenCookie(response);
+
+    return response;
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      { status: 401 }
+    );
+  }
 }

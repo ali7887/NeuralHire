@@ -1,12 +1,28 @@
 import "@/styles/admin.css";
 import Link from "next/link";
+import { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { getUserFromRequest } from "@/lib/auth/get-user-from-request";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: ReactNode }) {
+  const user = await getUserFromRequest(); // حالا بدون خطا
+
+  // اگر لاگین نیست
+  if (!user) {
+    redirect("/login");
+  }
+
+  // اگر admin نیست
+  if (user.role !== "admin") {
+    redirect("/");
+  }
+
   return (
     <div className="admin-container">
       {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">EuroJobs Admin</div>
+
         <nav className="admin-nav">
           <Link href="/admin/dashboard">Dashboard</Link>
           <Link href="/admin/jobs">Jobs</Link>

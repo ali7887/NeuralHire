@@ -44,7 +44,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleRegister} className={styles.form}>
+    <form autoComplete="off" onSubmit={handleRegister} className={styles.form}>
       <h2 className={styles.title}>Create an account</h2>
       <p className={styles.subtitle}>Join and start using the platform</p>
 

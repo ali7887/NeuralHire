@@ -37,7 +37,7 @@ export function ApplyForm({ jobId }: ApplyFormProps) {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form autoComplete="off" className={styles.form} onSubmit={handleSubmit}>
 
       <h2 className={styles.title}>Apply for this job</h2>
 

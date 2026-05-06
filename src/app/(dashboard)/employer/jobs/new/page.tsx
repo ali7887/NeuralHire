@@ -19,7 +19,7 @@ async function createJob(formData: FormData) {
 
 export default function NewJobPage() {
   return (
-    <form action={createJob}>
+    <form autoComplete="off" action={createJob}>
       <h1>Create Job</h1>
       <input name="title" placeholder="Title" />
       <input name="location" placeholder="Location" />

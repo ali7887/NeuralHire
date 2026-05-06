@@ -46,7 +46,7 @@ export function ApplyForm({ jobId }: { jobId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 border p-6 rounded-lg">
+    <form autoComplete="off" onSubmit={onSubmit} className="space-y-6 border p-6 rounded-lg">
       <div>
         <label className="block font-medium">Cover Letter</label>
         <textarea name="coverLetter" className="w-full border p-2"></textarea>

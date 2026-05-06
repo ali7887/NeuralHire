@@ -116,7 +116,8 @@ export function Header() {
         <div className={styles.actions}>
 
           {!user && (
-            <Link href="/signin" className={styles.signIn}>
+            <Link href="/login" className={styles.signIn}>
+
               Sign In
             </Link>
           )}
@@ -155,8 +156,9 @@ export function Header() {
           )}
 
           {!user && (
-            <Link href="/signin">Sign In</Link>
+            <Link href="/login">Sign In</Link>
           )}
+
 
           <Link href="/post-job" className={styles.mobilePostJob}>
             Post a Job

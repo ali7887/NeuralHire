@@ -47,7 +47,7 @@ export default function EditJobPage({ params }: EditJobPageProps) {
   if (!job) return <div className="p-10 text-center">در حال بارگذاری...</div>;
 
   return (
-    <form onSubmit={submit} className="max-w-2xl mx-auto p-6 space-y-4">
+    <form autoComplete="off" onSubmit={submit} className="max-w-2xl mx-auto p-6 space-y-4">
       <h1 className="text-xl font-bold mb-6">ویرایش شغل</h1>
 
       <div className="flex flex-col gap-2">

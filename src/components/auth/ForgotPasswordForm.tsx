@@ -36,7 +36,7 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form autoComplete="off" onSubmit={handleSubmit} className={styles.form}>
       <h2 className={styles.title}>Forgot password</h2>
       <p className={styles.subtitle}>We will send a reset link</p>
 

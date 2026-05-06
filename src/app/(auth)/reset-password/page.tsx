@@ -29,7 +29,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
 
         {/* 🟢 Token exists → show form */}
         {token && (
-          <form className="space-y-4">
+          <form autoComplete="off" className="space-y-4">
             <input
               type="password"
               name="password"

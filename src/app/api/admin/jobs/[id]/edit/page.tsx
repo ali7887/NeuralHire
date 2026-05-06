@@ -14,7 +14,7 @@ export default function EditJob({ params }: { params: { id: string } }) {
   }
 
   return (
-    <form onSubmit={submitHandler}>
+    <form autoComplete="off" onSubmit={submitHandler}>
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}

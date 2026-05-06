@@ -39,7 +39,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form autoComplete="off" onSubmit={handleSubmit} className={styles.form}>
       <h2 className={styles.title}>Reset password</h2>
       <p className={styles.subtitle}>Set a new password</p>
 
