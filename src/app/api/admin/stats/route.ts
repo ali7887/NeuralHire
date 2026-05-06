@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth/require-admin";
-import { authErrorResponse } from "@/lib/api/auth-error-response";
+import { requireAdmin } from "@/lib/auth/guards";
+
 import { getAdminStats } from "@/lib/admin/getStats";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+const user = await requireAdmin();
 
-  if (!auth.ok) {
-    return authErrorResponse(auth.error, auth.status);
-  }
 
   try {
     const stats = await getAdminStats();

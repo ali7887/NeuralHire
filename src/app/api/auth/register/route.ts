@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
-import { authService } from "@/lib/services/auth.service";
+export const runtime = "nodejs";
+
+import { NextResponse } from "next/server";import { authService } from "@/lib/services/auth.service";
 
 export async function POST(req: Request) {
   try {

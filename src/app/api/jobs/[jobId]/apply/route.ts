@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { jobs } from "@/lib/db/schema/jobs";
 import { applications } from "@/lib/db/schema/applications";
 import { eq, and } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 
 export async function POST(
   request: NextRequest,
@@ -11,7 +11,7 @@ export async function POST(
 ) {
   try {
     const { jobId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
 
     const job = await db.query.jobs.findFirst({
       where: eq(jobs.id, jobId),

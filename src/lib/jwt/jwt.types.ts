@@ -1,43 +1,60 @@
-export type UserRole = 'admin' | 'employer' | 'candidate' | 'user';
+export type UserRole =
+  | "admin"
+  | "employer"
+  | "job-seeker";
+
+/* ================================
+   Access Token
+================================ */
 
 export interface AccessTokenPayload {
   userId: string;
-  email: string;
   role: UserRole;
-  type: 'access';
-  [key: string]: unknown;
+  type: "access";
+  iat?: number;
+  exp?: number;
 }
+
+/* ================================
+   Refresh Token
+================================ */
 
 export interface RefreshTokenPayload {
   tokenId: string;
   userId: string;
-  type: 'refresh';
-  [key: string]: unknown;
+  type: "refresh";
+  iat?: number;
+  exp?: number;
 }
+
+/* ================================
+   Password Reset
+================================ */
 
 export interface ResetPasswordTokenPayload {
   userId: string;
   email: string;
-  type: 'reset';
+  type: "reset";
   iat?: number;
   exp?: number;
-  [key: string]: unknown;
 }
+
+/* ================================
+   Email Verification
+================================ */
 
 export interface EmailVerifyTokenPayload {
   userId: string;
   email: string;
-  type: 'email-verify';
+  type: "email-verify";
   iat?: number;
   exp?: number;
-  [key: string]: unknown;
 }
 
-export interface StoredRefreshToken {
-  id: string;
-  userId: string;
-  tokenHash: string;
-  expiresAt: string;
-  createdAt: string;
-  isRevoked: boolean;
-}
+
+export const TOKEN_TYPES = {
+  ACCESS: "access",
+  REFRESH: "refresh",
+  RESET: "reset",
+  EMAIL_VERIFY: "email-verify",
+} as const;

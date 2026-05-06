@@ -2,17 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { desc } from "drizzle-orm";
-import { requireAdmin } from "@/lib/auth/require-admin";
-import { authErrorResponse } from "@/lib/api/auth-error-response";
+import { requireAdmin } from "@/lib/auth/guards";
+
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+const user = await requireAdmin();
 
-  if (!auth.ok) {
-    return authErrorResponse(auth.error, auth.status);
-  }
 
   try {
     const result = await db

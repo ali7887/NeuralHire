@@ -1,4 +1,4 @@
 // src/lib/auth/index.ts
 
 
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireAdmin } from "@/lib/auth/guards";

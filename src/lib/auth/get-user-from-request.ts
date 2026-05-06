@@ -1,35 +1,18 @@
-import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { verifyAccessToken } from "@/lib/jwt/jwt.utils";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+export async function getUserFromRequest() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
 
-type AuthUser = {
-  userId: string;
-  role: string;
-};
-
-export async function getUserFromRequest(req?: NextRequest): Promise<AuthUser | null> {
-  let token: string | undefined;
-
-  if (req) {
-    token = req.cookies.get("accessToken")?.value;
-  } else {
-    const cookieStore = await cookies();
-    token = cookieStore.get("accessToken")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
   }
 
-  if (!token) return null;
+  const payload = await verifyAccessToken(token);
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
-
-    return {
-      userId: decoded.userId,
-      role: decoded.role,
-    };
-  } catch (error) {
-    console.error("JWT_VERIFY_ERROR:", error);
-    return null;
-  }
+  return {
+    userId: payload.userId,
+    role: payload.role,
+  };
 }

@@ -1,8 +1,12 @@
-import { AuthContext } from "./auth.context";
-import { UserRole } from "@/lib/jwt/jwt.types"; 
+import { getUserFromRequest } from "./get-user-from-request";
+import type { UserRole } from "@/lib/jwt/jwt.types";
 
-export function requireRole(ctx: AuthContext, allowed: string[]) {
-  if (!allowed.includes(ctx.role)) {
-    throw Object.assign(new Error("Forbidden"), { status: 403 });
+export async function requireRole(allowed: UserRole[]) {
+  const user = await getUserFromRequest();
+
+  if (!allowed.includes(user.role)) {
+    throw new Error("Forbidden");
   }
+
+  return user;
 }

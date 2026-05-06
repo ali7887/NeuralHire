@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth/require-admin";
-import { authErrorResponse } from "@/lib/api/auth-error-response";
+import { requireAdmin } from "@/lib/auth/guards";
+
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
@@ -8,14 +8,11 @@ import { eq } from "drizzle-orm";
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+const user = await requireAdmin();
 
-  if (!auth.ok) {
-    return authErrorResponse(auth.error, auth.status);
-  }
 
   try {
-    const [user] = await db
+    const [userId] = await db
       .select({
         id: users.id,
         email: users.email,
@@ -23,7 +20,7 @@ export async function GET(req: NextRequest) {
         createdAt: users.createdAt,
       })
       .from(users)
-      .where(eq(users.id, auth.user.userId))
+      .where(eq(users.id, user.userId))
       .limit(1);
 
     if (!user) {

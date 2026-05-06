@@ -2,7 +2,7 @@
 import { db } from "@/lib/db";
 import { applications, jobs } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { jobId, applicationId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
 
     if (user.role === "employer") {
       const [job] = await db

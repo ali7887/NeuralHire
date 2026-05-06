@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jobs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 
 export async function GET(
   request: NextRequest,
@@ -36,7 +36,7 @@ export async function PATCH(
 ) {
   try {
     const { jobId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
 
     const [existingJob] = await db
       .select()
@@ -79,7 +79,7 @@ export async function DELETE(
 ) {
   try {
     const { jobId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
 
     const [existingJob] = await db
       .select()

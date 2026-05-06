@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { jobs } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 
 // -----------------------------------------------------------------------------
 // GET /api/jobs
 // -----------------------------------------------------------------------------
 export async function GET(req: Request) {
   try {
-    const user = await requireAuth(req);
+    const user = await requireUser();
     const { searchParams } = new URL(req.url);
 
     const isActiveParam = searchParams.get("isActive");
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
 // -----------------------------------------------------------------------------
 export async function POST(req: Request) {
   try {
-    const user = await requireAuth(req);
+    const user = await requireUser();
 
     if (user.role !== "employer") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

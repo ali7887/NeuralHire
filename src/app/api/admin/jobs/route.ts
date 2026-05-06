@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth/require-admin";
-import { authErrorResponse } from "@/lib/api/auth-error-response";
+import { requireAdmin } from "@/lib/auth/guards";
+
 import { db } from "@/lib/db";
 import { jobs, type NewJob, jobStatusEnum } from "@/lib/db/schema/jobs";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+const user = await requireAdmin();
 
-  if (!auth.ok) {
-    return authErrorResponse(auth.error, auth.status);
-  }
 
   try {
     const allJobs = await db.select().from(jobs);
@@ -23,11 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req);
-
-  if (!auth.ok) {
-    return authErrorResponse(auth.error, auth.status);
-  }
+const user = await requireAdmin();
 
   try {
     const data = await req.json();

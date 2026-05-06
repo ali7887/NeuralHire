@@ -1,7 +1,7 @@
 // src/app/api/auth/logout-all/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 import { authService } from "@/lib/services/auth.service";
 import {
   clearRefreshTokenCookie,
@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const ctx = await requireAuth(req);
+    const ctx = await requireUser();
 
     const revokedCount = await authService.logoutAll(ctx.userId);
 

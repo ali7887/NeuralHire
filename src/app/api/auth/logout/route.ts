@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRefreshTokenFromRequest } from "@/lib/auth/token.extractor";
+import { getRefreshTokenFromRequest } from "@/lib/auth/cookie.utilities";
+
 import { authService } from "@/lib/services/auth.service";
 
 export async function POST(req: NextRequest) {

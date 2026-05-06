@@ -3,7 +3,7 @@ import { applicationService } from "@/lib/services/application.service";
 import { getUserFromRequest } from "@/lib/auth/get-user-from-request";
 
 export async function GET(req: NextRequest) {
-  const user = await getUserFromRequest(req);
+  const user = await getUserFromRequest();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

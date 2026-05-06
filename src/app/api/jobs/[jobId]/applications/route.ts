@@ -2,7 +2,7 @@
 import { db } from "@/lib/db";
 import { applications, jobs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth/auth.guard";
+import { requireUser } from "@/lib/auth/require-user";
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { jobId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
 
     if (user.role === "employer") {
       const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
@@ -41,7 +41,7 @@ export async function POST(
 ) {
   try {
     const { jobId } = await params;
-    const user = await requireAuth(request);
+    const user = await requireUser();
     const body = await request.json();
 
     const [application] = await db
