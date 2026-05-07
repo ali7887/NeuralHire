@@ -4,7 +4,9 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import { signEmailVerificationToken } from "@/lib/jwt/jwt.utils";
-import { sendVerificationEmail } from "@/lib/mail/send-verification";
+import { sendVerificationEmail } from "@/lib/mail/send-verification-email";
+
+
 
 export const runtime = "nodejs";
 

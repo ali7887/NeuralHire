@@ -32,7 +32,7 @@ async function seed() {
 
   const [admin] = await db.insert(users)
 .values({
-  id: crypto.randomUUID(),
+  
   email: "admin@test.com",
   name: "Admin",
   passwordHash: adminPass,

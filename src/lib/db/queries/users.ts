@@ -13,7 +13,7 @@ export async function createUser(name: string, email: string, password: string) 
   const userId = crypto.randomUUID();
 
   const [user] = await db.insert(users).values({
-    id: userId,
+    
     name,
     email,
     passwordHash,

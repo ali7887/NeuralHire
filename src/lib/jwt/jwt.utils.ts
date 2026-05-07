@@ -7,7 +7,6 @@ import type {
   UserRole,
 } from "./jwt.types";
 
-// Helper برای تبدیل استرینگ سکرت به Uint8Array که jose نیاز داره
 const getSecret = (envVar: string): Uint8Array => {
   const secret = process.env[envVar];
   if (!secret) {
@@ -23,9 +22,11 @@ const CONFIG = {
   email: { secret: "JWT_EMAIL_VERIFY_SECRET", expires: "30m" },
 } as const;
 
-// --- Sign Functions ---
-
-export async function signAccessToken(payload: { userId: string; email: string; role: UserRole }): Promise<string> {
+export async function signAccessToken(payload: {
+  userId: string;
+  email: string;
+  role: UserRole;
+}): Promise<string> {
   return new SignJWT({ ...payload, type: "access" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -33,7 +34,10 @@ export async function signAccessToken(payload: { userId: string; email: string; 
     .sign(getSecret(CONFIG.access.secret));
 }
 
-export async function signRefreshToken(payload: { tokenId: string; userId: string }): Promise<string> {
+export async function signRefreshToken(payload: {
+  tokenId: string;
+  userId: string;
+}): Promise<string> {
   return new SignJWT({ ...payload, type: "refresh" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -41,7 +45,10 @@ export async function signRefreshToken(payload: { tokenId: string; userId: strin
     .sign(getSecret(CONFIG.refresh.secret));
 }
 
-export async function signResetPasswordToken(payload: { userId: string; email: string }): Promise<string> {
+export async function signResetPasswordToken(payload: {
+  userId: string;
+  email: string;
+}): Promise<string> {
   return new SignJWT({ ...payload, type: "reset" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -49,15 +56,16 @@ export async function signResetPasswordToken(payload: { userId: string; email: s
     .sign(getSecret(CONFIG.reset.secret));
 }
 
-export async function signEmailVerificationToken(payload: { userId: string; email: string }): Promise<string> {
-  return new SignJWT({ ...payload, type: "email-verify" })
+export async function signEmailVerificationToken(payload: {
+  userId: string;
+  email: string;
+}): Promise<string> {
+  return new SignJWT({ ...payload, type: "email_verify" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(CONFIG.email.expires)
     .sign(getSecret(CONFIG.email.secret));
 }
-
-// --- Verify Functions ---
 
 export async function verifyAccessToken(token: string): Promise<AccessTokenPayload> {
   const { payload } = await jwtVerify(token, getSecret(CONFIG.access.secret));
@@ -79,6 +87,6 @@ export async function verifyResetPasswordToken(token: string): Promise<ResetPass
 
 export async function verifyEmailVerificationToken(token: string): Promise<EmailVerifyTokenPayload> {
   const { payload } = await jwtVerify(token, getSecret(CONFIG.email.secret));
-  if (payload.type !== "email-verify") throw new Error("Invalid token type");
+  if (payload.type !== "email_verify") throw new Error("Invalid token type");
   return payload as unknown as EmailVerifyTokenPayload;
 }

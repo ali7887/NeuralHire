@@ -1,13 +1,13 @@
 import nodemailer from "nodemailer";
 
-export async function sendPasswordResetEmail({
+export async function sendVerificationEmail({
   to,
   token,
 }: {
   to: string;
   token: string;
 }) {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+  const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
 
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -21,11 +21,11 @@ export async function sendPasswordResetEmail({
   await transporter.sendMail({
     to,
     from: process.env.SMTP_FROM,
-    subject: "Reset your password",
+    subject: "Verify your email",
     html: `
-      <p>You requested to reset your password.</p>
-      <p><a href="${resetUrl}">Click here to reset your password</a></p>
-      <p>If you didn’t request this, no action is needed.</p>
+      <p>Please verify your email address.</p>
+      <p><a href="${verifyUrl}">Verify Email</a></p>
+      <p>If you didn’t request this, you can ignore this email.</p>
     `,
   });
 }

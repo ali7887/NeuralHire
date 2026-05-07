@@ -1,23 +1,13 @@
-export type UserRole =
-  | "admin"
-  | "employer"
-  | "job-seeker";
-
-/* ================================
-   Access Token
-================================ */
+export type UserRole = "admin" | "employer" | "job-seeker";
 
 export interface AccessTokenPayload {
   userId: string;
+  email: string;
   role: UserRole;
   type: "access";
   iat?: number;
   exp?: number;
 }
-
-/* ================================
-   Refresh Token
-================================ */
 
 export interface RefreshTokenPayload {
   tokenId: string;
@@ -27,10 +17,6 @@ export interface RefreshTokenPayload {
   exp?: number;
 }
 
-/* ================================
-   Password Reset
-================================ */
-
 export interface ResetPasswordTokenPayload {
   userId: string;
   email: string;
@@ -39,22 +25,17 @@ export interface ResetPasswordTokenPayload {
   exp?: number;
 }
 
-/* ================================
-   Email Verification
-================================ */
-
 export interface EmailVerifyTokenPayload {
   userId: string;
   email: string;
-  type: "email-verify";
+  type: "email_verify";
   iat?: number;
   exp?: number;
 }
-
 
 export const TOKEN_TYPES = {
   ACCESS: "access",
   REFRESH: "refresh",
   RESET: "reset",
-  EMAIL_VERIFY: "email-verify",
+  EMAIL_VERIFY: "email_verify",
 } as const;
