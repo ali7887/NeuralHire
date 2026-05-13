@@ -20,8 +20,19 @@ export function SmartSearch({ onResults }: { onResults: (results: any[]) => void
 
       const res = await fetch("/api/search", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ query: debounced }),
       });
+
+      if (!res.ok) {
+        console.error("Search failed");
+        return;
+      }
+
+
+
 
       const data = await res.json();
       onResults(data.results);

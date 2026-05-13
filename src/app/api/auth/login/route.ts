@@ -1,3 +1,4 @@
+//project\NEW\job-board-saas\src\app\api\auth\login\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/services/auth.service";
 import {
@@ -51,6 +52,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
+      );
+    }
+
+    if (error?.message === "Email not verified") {
+      return NextResponse.json(
+        { error: "Please verify your email before logging in." },
+        { status: 403 }
       );
     }
 

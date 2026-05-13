@@ -1,7 +1,9 @@
 import { useState } from "react"
 
 export function useJobForm(initialData: any = {}) {
+
   const [form, setForm] = useState<any>(initialData)
+  const [loading, setLoading] = useState(false)
 
   function handleChange(e: any) {
     const { name, value } = e.target
@@ -12,7 +14,7 @@ export function useJobForm(initialData: any = {}) {
     form,
     setForm,
     handleChange,
-    loading: false,
-    setLoading: (p0: boolean) => {},
+    loading,
+    setLoading,
   }
 }

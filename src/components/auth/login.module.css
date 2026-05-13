@@ -48,3 +48,18 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
+.footer {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  display: flex;
+  gap: 6px;
+}
+
+.registerLink {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}

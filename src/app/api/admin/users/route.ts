@@ -4,12 +4,17 @@ import { users } from "@/lib/db/schema/users";
 import { desc } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth/guards";
 
-
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-const user = await requireAdmin();
+  const user = await requireAdmin();
 
+  if (!user) {
+    return NextResponse.json(
+      { error: "Forbidden" },
+      { status: 403 }
+    );
+  }
 
   try {
     const result = await db
@@ -25,6 +30,10 @@ const user = await requireAdmin();
     return NextResponse.json(result);
   } catch (error) {
     console.error("ADMIN_USERS_ERROR:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

@@ -1,0 +1,101 @@
+.authCard {
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem 2rem;
+  border-radius: 1.25rem;
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.05),
+    0 10px 15px -3px rgba(0,0,0,0.1),
+    0 4px 6px -2px rgba(0,0,0,0.05);
+
+  border: 1px solid #f1f5f9;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem; /* کمتر شد تا کارت کوتاه‌تر شود */
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* کمتر از قبل */
+}
+
+/* role section */
+
+.roleGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.roleLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.roleOption {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.roleOption input {
+  accent-color: #2563eb;
+}
+
+/* error */
+
+.formError {
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+/* دکمه دقیقا مثل login */
+
+.registerSubmitButton {
+  margin-top: 0.5rem;
+  height: 48px;
+  font-weight: 600;
+  background-color: #2563eb !important;
+  transition: all 0.2s;
+}
+
+.registerSubmitButton:hover {
+  background-color: #1d4ed8 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* footer */
+
+.footer {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  display: flex;
+  gap: 6px;
+}
+
+.loginLink {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}

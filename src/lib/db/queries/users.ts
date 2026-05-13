@@ -12,13 +12,13 @@ export async function createUser(name: string, email: string, password: string) 
 
   const userId = crypto.randomUUID();
 
-  const [user] = await db.insert(users).values({
-    
-    name,
-    email,
-    passwordHash,
-    role: "user",
-  }).returning();
+const [user] = await db.insert(users).values({
+  name,
+  email,
+  passwordHash,
+  role: "job-seeker",
+}).returning();
+
 
   return user;
 }

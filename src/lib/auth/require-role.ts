@@ -4,8 +4,12 @@ import type { UserRole } from "@/lib/jwt/jwt.types";
 export async function requireRole(allowed: UserRole[]) {
   const user = await getUserFromRequest();
 
+  if (!user) {
+    return null;
+  }
+
   if (!allowed.includes(user.role)) {
-    throw new Error("Forbidden");
+    return null;
   }
 
   return user;

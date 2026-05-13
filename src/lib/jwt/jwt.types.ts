@@ -1,4 +1,9 @@
-export type UserRole = "admin" | "employer" | "job-seeker";
+export type UserRole =
+  | "admin"
+  | "employer"
+  | "job-seeker"
+  | "user";
+
 
 export interface AccessTokenPayload {
   userId: string;
@@ -39,3 +44,4 @@ export const TOKEN_TYPES = {
   RESET: "reset",
   EMAIL_VERIFY: "email_verify",
 } as const;
+

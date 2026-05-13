@@ -11,10 +11,10 @@ import {
 
 // GET /api/admin/jobs/[id]
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = params.id; 
+  const { id } = await context.params; 
 
   const result = await db
     .select()

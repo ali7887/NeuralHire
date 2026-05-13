@@ -1,0 +1,53 @@
+// src/components/search/CommandPalette.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Search, Command, X } from 'lucide-react';
+import styles from './CommandPalette.module.css';
+
+export default function CommandPalette({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.searchWrapper}>
+          <Search className={styles.searchIcon} size={20} />
+          <input 
+            autoFocus
+            placeholder="Search jobs, skills, or companies..." 
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={styles.input}
+          />
+          <button onClick={onClose} className={styles.closeBtn}><X size={18}/></button>
+        </div>
+        
+        <div className={styles.results}>
+          <div className={styles.sectionLabel}>Quick Actions</div>
+          <div className={styles.resultItem}>
+            <Command size={14} /> <span>Browse all remote jobs</span>
+          </div>
+          <div className={styles.resultItem}>
+            <Command size={14} /> <span>Filter by Senior roles</span>
+          </div>
+        </div>
+
+        <div className={styles.footer}>
+          <span><kbd>ESC</kbd> to close</span>
+          <span><kbd>↵</kbd> to select</span>
+        </div>
+      </div>
+    </div>
+  );
+}

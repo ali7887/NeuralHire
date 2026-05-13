@@ -6,26 +6,29 @@ import styles from "./login.module.css";
 import { Input } from "@/components/ui/Input/Input/input";
 import Button from "@/components/ui/Button";
 
-type Role = "admin" | "employer" | "user";
+type Role = "admin" | "employer" | "job-seeker";
 
 type LoginOk = {
-  success?: true;
-  user: { id: string; email: string; role: Role; name?: string | null };
+  user: {
+    id: string;
+    email: string;
+    role: Role;
+    name?: string | null;
+  };
 };
 
 type LoginErr = {
   error?: string;
 };
 
-function isLoginOk(x: unknown): x is LoginOk {
-  if (!x || typeof x !== "object") return false;
-  const u = (x as any).user;
+function isLoginOk(data: unknown): data is LoginOk {
+  if (!data || typeof data !== "object") return false;
+  const user = (data as any).user;
   return (
-    u &&
-    typeof u === "object" &&
-    typeof u.id === "string" &&
-    typeof u.email === "string" &&
-    typeof u.role === "string"
+    user &&
+    typeof user.id === "string" &&
+    typeof user.email === "string" &&
+    typeof user.role === "string"
   );
 }
 
@@ -34,6 +37,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -62,52 +66,43 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
 
+      // eslint-disable-next-line no-undef
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
-        body: JSON.stringify({ email, password, rememberMe }),
+        body: JSON.stringify({
+          email,
+          password,
+          rememberMe,
+        }),
       });
 
-      // سعی کن JSON بخونی؛ اگر نشد متن خام را بگیر (برای debug)
-      const contentType = res.headers.get("content-type") || "";
-      const rawText = await res.text();
-
-      const parsed: unknown =
-        contentType.includes("application/json") && rawText
-          ? JSON.parse(rawText)
-          : null;
+      const data: unknown = await res.json();
 
       if (!res.ok) {
-        const msg =
-          (parsed as LoginErr | null)?.error ||
-          (rawText?.slice(0, 200) || null) ||
-          "Request failed.";
-
-        if (res.status === 400) setFormError(msg || "Invalid request data.");
-        else if (res.status === 401) setFormError(msg || "Invalid email or password.");
-        else if (res.status === 429) setFormError(msg || "Too many requests. Try again later.");
-        else setFormError(msg || "An unexpected error occurred.");
-
-        // کمک برای دیباگ
-        console.error("LOGIN FAILED", { status: res.status, parsed, rawText });
+        const err = data as LoginErr;
+        setFormError(err.error || "Login failed.");
         return;
       }
 
-      if (!isLoginOk(parsed)) {
-        console.error("LOGIN OK but invalid payload shape", { parsed, rawText });
-        setFormError("Login succeeded but response was invalid.");
+      if (!isLoginOk(data)) {
+        setFormError("Invalid server response.");
         return;
       }
 
-      const role = parsed.user.role;
+      const role = data.user.role;
 
       if (role === "admin") router.push("/admin/dashboard");
       else if (role === "employer") router.push("/employer/dashboard");
       else router.push("/dashboard");
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      console.error("Login error:", err);
-      setFormError("Network error. Please check your connection.");
+      
+      setFormError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -116,59 +111,40 @@ export default function LoginForm() {
   return (
     <div className={styles.authCard}>
       <h1 className={styles.title}>Sign in</h1>
-      <p className={styles.subtitle}>Welcome back! Please enter your details.</p>
+      <p className={styles.subtitle}>
+        Welcome back! Please enter your details.
+      </p>
 
-      <form autoComplete="off" onSubmit={handleSubmit} className={styles.loginForm}>
-        <input
-          type="text"
-          name="username"
-          autoComplete="username"
-          style={{ display: "none" }}
-        />
-        <input
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          style={{ display: "none" }}
+      <form onSubmit={handleSubmit} className={styles.loginForm} autoComplete="off">
+
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
         />
 
-        <div className={styles.fieldGroup}>
+        <div className={styles.passwordRow}>
           <Input
-            id="login-email"
-            label="Email"
-            name="auth_login_email"
-            type="text"
-            inputMode="email"
-            autoComplete="new-email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             fullWidth
           />
-        </div>
 
-        <div className={styles.fieldGroup}>
-          <div className={styles.passwordRow}>
-            <Input
-              id="login-password"
-              label="Password"
-              name="auth_login_password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-            />
-
-            <button
-              type="button"
-              className={styles.showPasswordButton}
-              onClick={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.showPasswordButton}
+            onClick={() => setShowPassword((v) => !v)}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
         </div>
 
         <div className={styles.optionsRow}>
@@ -202,19 +178,14 @@ export default function LoginForm() {
           className={styles.loginSubmitButton}
           fullWidth
         >
-          {isLoading ? (
-            <span className={styles.buttonWithSpinner}>
-              <span className={styles.spinner} />
-              Signing in...
-            </span>
-          ) : (
-            "Sign in"
-          )}
+          {isLoading ? "Signing in..." : "Sign in"}
         </Button>
+
       </form>
 
       <div className={styles.footer}>
-        <span>Don&apos;t have an account?</span>
+        <span>Dont have an account?</span>
+
         <button
           type="button"
           className={styles.registerLink}

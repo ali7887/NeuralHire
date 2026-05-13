@@ -1,74 +1,92 @@
 // src/middleware.ts
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-// ------------------------------------------
-// RBAC CONFIGURATION
-// ------------------------------------------
+// ===============================
+// PUBLIC ROUTES
+// ===============================
 const PUBLIC_PATHS = [
   "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
   "/admin/login",
+  "/403",
 ];
 
-const ROLE_BASED_ACCESS = [
+// ===============================
+// ROLE TYPES
+// ===============================
+type Role = "admin" | "employer" | "job-seeker";
+
+// ===============================
+// ROLE → ROUTE ACCESS
+// ===============================
+const ACCESS_RULES = [
   {
     matcher: /^\/admin(\/.*)?$/,
-    allowedRoles: ["admin"],
+    allowedRoles: ["admin"] as Role[],
     redirectTo: "/admin/login",
   },
   {
-    matcher: /^\/dashboard\/employer(\/.*)?$/,
-    allowedRoles: ["employer"],
+    matcher: /^\/employer(\/.*)?$/,
+    allowedRoles: ["employer", "admin"] as Role[],
     redirectTo: "/login",
   },
   {
-    matcher: /^\/dashboard\/user(\/.*)?$/,
-    allowedRoles: ["user"],
+    matcher: /^\/dashboard(\/.*)?$/,
+    allowedRoles: ["job-seeker"] as Role[],
     redirectTo: "/login",
   },
 ];
 
-// -------------------------------
-// Matchers (Next.js config)
-// -------------------------------
+// ===============================
+// NEXT MATCHERS
+// ===============================
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/dashboard/employer/:path*",
-    "/dashboard/user/:path*",
+    "/employer/:path*",
+    "/dashboard/:path*",
     "/api/auth/me",
   ],
 };
 
-// Secret → Edge-compatible
-const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+// ===============================
+// EDGE SAFE JWT SECRET
+// ===============================
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET || "fallback-secret"
+);
 
-// ------------------------------------------
-// MAIN MIDDLEWARE
-// ------------------------------------------
+// ===============================
+// MIDDLEWARE
+// ===============================
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  console.log("[RBAC] Middleware HIT:", pathname);
+  console.log("[RBAC]", pathname);
 
-  // 1. Allow public paths directly
+  // ===============================
+  // PUBLIC ROUTES
+  // ===============================
   if (PUBLIC_PATHS.includes(pathname)) {
-    console.log("[RBAC] Public path → allowed");
     return NextResponse.next();
   }
 
-  // 2. Get JWT
+  // ===============================
+  // TOKEN
+  // ===============================
   const token = req.cookies.get("accessToken")?.value;
 
   if (!token) {
-    console.log("[RBAC] No token → redirect");
+    const matchedRule = ACCESS_RULES.find((r) =>
+      r.matcher.test(pathname)
+    );
 
-    const zone = ROLE_BASED_ACCESS.find((z) => z.matcher.test(pathname));
-    const redirectTo = zone?.redirectTo || "/login";
+    const redirectTo = matchedRule?.redirectTo || "/login";
 
     const url = req.nextUrl.clone();
     url.pathname = redirectTo;
@@ -76,13 +94,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. Verify JWT using JOSE
-  let decoded: any = null;
+  // ===============================
+  // VERIFY JWT
+  // ===============================
+  let payload: any;
+
   try {
-    const { payload } = await jwtVerify(token, secret);
-    decoded = payload;
-  } catch (err) {
-    console.log("[RBAC] Invalid token:", err);
+    const verified = await jwtVerify(token, secret);
+    payload = verified.payload;
+  } catch (error) {
+    console.error("[JWT VERIFY ERROR]", error);
 
     const url = req.nextUrl.clone();
     url.pathname = "/login";
@@ -90,23 +111,38 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const userRole = decoded?.role;
-  console.log("[RBAC] User role:", userRole);
+  // ===============================
+  // USER ROLE
+  // ===============================
+  let userRole = payload.role as string;
 
-  // 4. RBAC
-  for (const rule of ROLE_BASED_ACCESS) {
+  // normalize old roles
+  if (userRole === "user") {
+    userRole = "job-seeker";
+  }
+
+  // ===============================
+  // RBAC CHECK
+  // ===============================
+  for (const rule of ACCESS_RULES) {
     if (rule.matcher.test(pathname)) {
-      console.log("[RBAC] Zone matched →", rule.allowedRoles);
+      const hasAccess = rule.allowedRoles.includes(userRole as Role);
 
-      if (!rule.allowedRoles.includes(userRole)) {
-        console.log("[RBAC] Access denied →", { userRole, pathname });
+      if (!hasAccess) {
+        console.warn(
+          `[RBAC BLOCKED] role=${userRole} path=${pathname}`
+        );
 
         const url = req.nextUrl.clone();
         url.pathname = "/403";
+
         return NextResponse.rewrite(url);
       }
     }
   }
 
+  // ===============================
+  // ALLOW
+  // ===============================
   return NextResponse.next();
 }

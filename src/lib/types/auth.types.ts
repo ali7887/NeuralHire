@@ -45,5 +45,5 @@ export interface RegisterInput {
 export type UserRole =
   | "admin"
   | "employer"
-  | "candidate"
-  | "user";
+  | "job-seeker";
+

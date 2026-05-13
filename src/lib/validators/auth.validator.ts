@@ -1,3 +1,4 @@
+//D:\project\NEW\job-board-saas\src\lib\validators\auth.validator.ts
 import { z } from 'zod';
 
 export const loginSchema = z.object({
@@ -12,7 +13,8 @@ export const registerSchema = z.object({
     .min(6, 'Password must be at least 6 characters')
     .max(72, 'Password too long'),
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  role: z.enum(['JOBSEEKER', 'EMPLOYER']).optional().default('JOBSEEKER'),
+  role: z.enum(['job-seeker', 'employer'])
+.optional().default('job-seeker'),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

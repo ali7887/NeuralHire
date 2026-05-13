@@ -8,6 +8,7 @@ import type {
 } from "./jwt.types";
 
 const getSecret = (envVar: string): Uint8Array => {
+  // eslint-disable-next-line no-undef
   const secret = process.env[envVar];
   if (!secret) {
     throw new Error(`Environment variable ${envVar} is missing!`);

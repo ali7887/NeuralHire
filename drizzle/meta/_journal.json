@@ -22,6 +22,34 @@
       "when": 1777988934619,
       "tag": "0002_dark_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778137896629,
+      "tag": "0003_nappy_human_fly",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778139106667,
+      "tag": "0004_mean_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778314499036,
+      "tag": "0005_futuristic_gunslinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778601057024,
+      "tag": "0006_melodic_starbolt",
+      "breakpoints": true
     }
   ]
 }

@@ -5,15 +5,33 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const userId = req.headers.get("userId")!;
-  const body = await req.json();
+  try {
+    const { id } = await params;
 
-  const data = await applicationService.applyToJob(
-    userId,
-    id,
-    body
-  );
+    const userId = req.headers.get("userId");
 
-  return NextResponse.json(data, { status: 201 });
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+
+    const data = await applicationService.applyToJob(
+      userId,
+      id,
+      body
+    );
+
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    console.error("Apply error:", error);
+
+    return NextResponse.json(
+      { error: "Application failed" },
+      { status: 500 }
+    );
+  }
 }

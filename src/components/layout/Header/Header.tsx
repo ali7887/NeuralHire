@@ -1,174 +1,109 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Menu, X, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import styles from './Header.module.css';
-
-type MeResponse = {
-  id: string
-  email: string
-  role: "user" | "admin"
-}
+import CommandPalette from '@/components/search/CommandPalette';
 
 export function Header() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<MeResponse | null>(null);
+  const [isCmdOpen, setIsCmdOpen] = useState(false);
 
-  const progressRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
 
+    let ticking = false;
+
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
 
-      if (progressRef.current) {
-        const total =
-          document.documentElement.scrollHeight -
-          document.documentElement.clientHeight;
+      if (!ticking) {
 
-        const percent = (window.scrollY / total) * 100;
+        window.requestAnimationFrame(() => {
 
-        progressRef.current.style.width = `${percent}%`;
+          setScrolled(window.scrollY > 40);
+
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+
+        e.preventDefault();
+
+        setIsCmdOpen(true);
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
 
-  }, []);
-
-
-  // گرفتن اطلاعات کاربر
-  useEffect(() => {
-
-    async function fetchUser() {
-      try {
-
-        const res = await fetch("/api/auth/me");
-
-        if (!res.ok) return;
-
-        const data = await res.json();
-
-        if (data?.data) {
-          setUser(data.data);
-        }
-
-      } catch {
-        // ignore
-      }
-    }
-
-    fetchUser();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
 
   }, []);
-
 
   return (
-    <header className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}>
-      <div className={styles.container}>
+    <>
+      <header className={`${styles.header} ${scrolled ? styles.scrolled : styles.transparent}`}>
 
-        {/* LOGO */}
-        <Link href="/" className={styles.logo}>
-          <div className={styles.logoMark}>E</div>
-          <span>
-            Euro<strong>Jobs</strong>
-          </span>
-        </Link>
+        <div className={styles.container}>
 
-
-        {/* NAV */}
-        <nav className={styles.nav}>
-
-          <Link href="/jobs" className={pathname === '/jobs' ? styles.activeLink : ''}>
-            Find Jobs
+          <Link href="/" className={styles.logo}>
+            <div className={styles.logoMark}>E</div>
+            <span>Euro<strong>Jobs</strong></span>
           </Link>
 
-          <Link href="/companies" className={pathname === '/companies' ? styles.activeLink : ''}>
-            Companies
-          </Link>
+          <div
+            className={`${styles.stickySearch} ${scrolled ? styles.showSearch : ''}`}
+            onClick={() => setIsCmdOpen(true)}
+          >
+            <Search size={16} />
+            <span>Search...</span>
+            <kbd className={styles.kbd}>⌘K</kbd>
+          </div>
 
-          <Link href="/about" className={pathname === '/about' ? styles.activeLink : ''}>
-            About
-          </Link>
-
-          <Link href="/contact" className={pathname === '/contact' ? styles.activeLink : ''}>
-            Contact
-          </Link>
-
-          {/* فقط برای ادمین */}
-          {user?.role === "admin" && (
-            <Link href="/admin/dashboard">
-              Admin
+          <nav className={styles.nav}>
+            <Link href="/jobs" className={pathname === '/jobs' ? styles.activeLink : ''}>
+              Find Jobs
             </Link>
-          )}
 
-        </nav>
-
-
-        {/* ACTIONS */}
-        <div className={styles.actions}>
-
-          {!user && (
-            <Link href="/login" className={styles.signIn}>
-
-              Sign In
+            <Link href="/companies">
+              Companies
             </Link>
-          )}
+            <Link href="/about">About Us</Link>
+            <Link href="/contact">Contact</Link>
+          </nav>
 
-          <Link href="/post-job" className={styles.postJob}>
-            Post a Job
-          </Link>
+          <div className={styles.actions}>
+            <Link href="/login" className={styles.signIn}>Sign In</Link>
+            <Link href="/post-job" className={styles.postJob}>Post a Job</Link>
+          </div>
+
+          <button
+            className={styles.mobileToggle}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
         </div>
 
+      </header>
 
-        {/* MOBILE BUTTON */}
-        <button
-          className={styles.mobileToggle}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-      </div>
-
-
-      {/* MOBILE MENU */}
-      {mobileMenuOpen && (
-        <div className={styles.mobileMenu}>
-
-          <Link href="/jobs">Find Jobs</Link>
-          <Link href="/companies">Companies</Link>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
-
-          {user?.role === "admin" && (
-            <Link href="/admin/dashboard">
-              Admin
-            </Link>
-          )}
-
-          {!user && (
-            <Link href="/login">Sign In</Link>
-          )}
-
-
-          <Link href="/post-job" className={styles.mobilePostJob}>
-            Post a Job
-          </Link>
-
-        </div>
-      )}
-
-      <div ref={progressRef} className={styles.progressBar} />
-
-    </header>
+      <CommandPalette isOpen={isCmdOpen} onClose={() => setIsCmdOpen(false)} />
+    </>
   );
 }

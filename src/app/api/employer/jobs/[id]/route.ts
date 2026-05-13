@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jobService } from "@/lib/services/job.service";
+import { requireUser } from "@/lib/auth/require-user";
 
 export async function GET(
   _req: NextRequest,
@@ -13,6 +14,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const user = await requireUser();
+
   const { id } = await params;
   const userId = req.headers.get("userId")!;
   const body = await req.json();

@@ -1,3 +1,4 @@
+//job-board-saas\src\app\(dashboard)\applications\page.tsx
 import React from "react";
 import "./applications.css";
 import { getUserFromRequest } from "@/lib/auth/get-user-from-request";
@@ -12,8 +13,9 @@ export default async function ApplicationsDashboardPage() {
   }
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/me/applications`, {
-    cache: "no-store",
-  });
+  cache: "no-store",
+  credentials: "include",
+});
 
   if (!res.ok) {
     return <p>Error loading applications.</p>;

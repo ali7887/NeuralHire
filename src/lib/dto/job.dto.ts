@@ -11,16 +11,15 @@ export type JobDTO = {
 
 export type JobCreateDTO = Omit<JobDTO, "id" | "createdAt">
 
-
 export function toJobDTO(job: any): JobDTO {
   return {
     id: job.id,
     title: job.title,
     description: job.description,
-    location: job.location,
-    salary: job.salary,
-    type: job.type,
+    location: job.location ?? undefined,
+    salary: job.salary ?? undefined,
+    type: job.type ?? undefined,
     companyId: job.companyId,
-    createdAt: job.createdAt
+    createdAt: job.createdAt ?? undefined
   }
 }

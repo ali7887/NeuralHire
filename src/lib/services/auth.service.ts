@@ -1,5 +1,8 @@
+//D:\project\NEW\job-board-saas\src\lib\services\auth.service.ts
 import bcrypt from "bcryptjs";
 import { and, eq, gt } from "drizzle-orm";
+import { signEmailVerificationToken } from "@/lib/jwt/jwt.utils";
+import { sendVerificationEmail } from "@/lib/mail/send-verification-email";
 
 import { db } from "@/lib/db";
 import { refreshTokens, users, type User } from "@/lib/db/schema";
@@ -48,7 +51,8 @@ export const authService = {
         name: name?.trim() || null,
         email: normalizedEmail,
         passwordHash,
-        role: "user",
+        role: "job-seeker",
+        emailVerifiedAt: new Date(),
       })
       .returning();
 
@@ -57,13 +61,37 @@ export const authService = {
       throw new Error("Failed to create user");
     }
 
+    const verifyToken = await signEmailVerificationToken({
+      userId: user.id,
+      email: user.email,
+    });
+
+    const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verifyToken}`;
+
+    console.log("EMAIL_VERIFY_URL:", verifyUrl);
+
+    try {
+      await sendVerificationEmail({
+        to: user.email,
+        token: verifyToken,
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === "production") {
+        throw error;
+      }
+
+      console.warn("Email sending failed in development mode:", error);
+    }
+
     const tokens = await this.loginUser(user);
 
     return {
       user: this.toSafeUser(user),
       ...tokens,
     };
-  },
+  }
+
+  ,
 
   async login({ email, password }: LoginInput) {
     const normalizedEmail = email.trim().toLowerCase();
@@ -76,19 +104,39 @@ export const authService = {
       throw new Error("Invalid credentials");
     }
 
-    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+    if (!user.emailVerifiedAt) {
+      throw new Error("Email not verified");
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user.passwordHash
+    );
 
     if (!passwordMatches) {
       throw new Error("Invalid credentials");
     }
 
-    const tokens = await this.loginUser(user);
+    // normalize role
+    const normalizedRole = user.role;
+
+
+    const tokens = await this.loginUser({
+      id: user.id,
+      email: user.email,
+      role: normalizedRole,
+
+    });
 
     return {
       user: this.toSafeUser(user),
       ...tokens,
     };
-  },
+  }
+
+
+
+  ,
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     const payload = await verifyResetPasswordToken(token);

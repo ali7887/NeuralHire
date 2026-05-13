@@ -2,17 +2,24 @@ import { cookies } from "next/headers";
 import { verifyAccessToken } from "@/lib/jwt/jwt.utils";
 
 export async function getUserFromRequest() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
+  try {
+    const cookieStore = await cookies();
 
-  if (!token) {
-    throw new Error("Unauthorized");
+    const token = cookieStore.get("accessToken")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const payload = await verifyAccessToken(token);
+
+    return {
+      userId: payload.userId,
+      role: payload.role,
+    };
+  } catch (error) {
+    console.error("[AUTH_ERROR]", error);
+
+    return null;
   }
-
-  const payload = await verifyAccessToken(token);
-
-  return {
-    userId: payload.userId,
-    role: payload.role,
-  };
 }

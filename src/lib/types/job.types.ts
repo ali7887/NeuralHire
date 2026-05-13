@@ -43,3 +43,16 @@ export interface JobCreateInput {
   salary?: number;
   skills?: string[];
 }
+export type JobDTO = {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  salary?: number | null;
+  type?: string | null;
+  createdAt?: Date | null;
+  company?: {
+    name: string;
+    logo?: string | null;
+  };
+};

@@ -8,11 +8,17 @@ import { eq } from "drizzle-orm";
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-const user = await requireAdmin();
+  const admin = await requireAdmin();
 
+  if (!admin) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
 
   try {
-    const [userId] = await db
+    const [user] = await db
       .select({
         id: users.id,
         email: users.email,
@@ -20,16 +26,23 @@ const user = await requireAdmin();
         createdAt: users.createdAt,
       })
       .from(users)
-      .where(eq(users.id, user.userId))
+      .where(eq(users.id, admin.userId))
       .limit(1);
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ user });
   } catch (error) {
     console.error("ADMIN_PROFILE_ERROR:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

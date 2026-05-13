@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import styles from "../ui/form.module.css";
-import Input from "../ui/Input";
+import { Input } from "../ui/Input/Input/input";
 import Button from "../ui/Button";
 import { Mail } from "lucide-react";
 import toast from "react-hot-toast";
@@ -16,6 +16,7 @@ export default function ForgotPasswordForm() {
     setLoading(true);
 
     try {
+      // eslint-disable-next-line no-undef
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -42,16 +43,24 @@ export default function ForgotPasswordForm() {
 
       <Input
         label="Email"
-        icon={<Mail size={18} />}
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
       />
 
-      <Button fullWidth loading={loading}>
+
+      <Button
+        fullWidth
+        loading={loading}
+        style={{
+          backgroundColor: '#2563eb',
+          color: '#ffffff'
+        }}
+      >
         Send Reset Link
       </Button>
+
     </form>
   );
 }

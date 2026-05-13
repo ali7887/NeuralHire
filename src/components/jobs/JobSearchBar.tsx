@@ -1,9 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function JobSearchBar() {
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -11,44 +12,39 @@ export default function JobSearchBar() {
   const initialSearch = searchParams.get("search") || "";
 
   const [value, setValue] = useState(initialSearch);
+  const [debounced, setDebounced] = useState(initialSearch);
 
-  // Debounce function
-  const debounce = (fn: Function, delay: number) => {
-    let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => fn(...args), delay);
-    };
-  };
+  // ✅ debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounced(value);
+    }, 400);
 
-  const updateURL = useCallback(
-    debounce((searchValue: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+    return () => clearTimeout(timer);
+  }, [value]);
 
-      if (searchValue) params.set("search", searchValue);
-      else params.delete("search");
+  // ✅ update URL safely
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
 
-      // IMPORTANT: Reset pagination whenever search changes
-      params.delete("page");
+    if (debounced.trim()) {
+      params.set("search", debounced.trim());
+    } else {
+      params.delete("search");
+    }
 
-      const url = `${pathname}?${params.toString()}`;
-      router.push(url);
-    }, 400),
-    []
-  );
+    params.delete("page");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    updateURL(e.target.value);
-  };
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [debounced, pathname, router, searchParams]);
 
   return (
     <input
       type="text"
       placeholder="Search jobs..."
       value={value}
-      onChange={handleChange}
-      className="search-input"
+      onChange={(e) => setValue(e.target.value)}
+      className="job-search-input"
     />
   );
 }

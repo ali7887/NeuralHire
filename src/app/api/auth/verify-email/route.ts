@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema/users";
-import { eq } from "drizzle-orm";
-import { verifyEmailVerificationToken } from "@/lib/jwt/jwt.utils";
-export const runtime = "nodejs";
+// src/app/api/auth/verify-email/route.ts
 
-export async function GET(req: NextRequest) {
+import { NextResponse } from "next/server";
+import { verifyEmailVerificationToken } from "@/lib/jwt/jwt.utils";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+
+export async function GET(req: Request) {
   try {
-    const token = req.nextUrl.searchParams.get("token");
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get("token");
 
     if (!token) {
       return NextResponse.json(
@@ -17,34 +19,25 @@ export async function GET(req: NextRequest) {
     }
 
     const payload = await verifyEmailVerificationToken(token);
-
-    const userId = payload.userId;
-
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, userId),
-    });
-
-    if (!user) {
+    if (!payload) {
       return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
+        { error: "Invalid or expired token" },
+        { status: 400 }
       );
     }
 
     await db
       .update(users)
-      .set({
-        emailVerified: true,
-      })
-      .where(eq(users.id, userId));
+      .set({ emailVerifiedAt: new Date() })
+      .where(eq(users.id, payload.userId));
 
     return NextResponse.json({
       message: "Email successfully verified",
     });
-  } catch (error) {
+  } catch (err) {
     return NextResponse.json(
-      { error: "Invalid or expired token" },
-      { status: 400 }
+      { error: "Failed to verify email" },
+      { status: 500 }
     );
   }
 }

@@ -6,8 +6,6 @@ import { eq } from "drizzle-orm";
 import { signEmailVerificationToken } from "@/lib/jwt/jwt.utils";
 import { sendVerificationEmail } from "@/lib/mail/send-verification-email";
 
-
-
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
@@ -16,6 +14,7 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ??
     "localhost";
 
+  // Rate Limit
   if (!rateLimit(ip)) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -33,28 +32,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Query user
     const user = await db.query.users.findFirst({
-      where: eq(users.email, email),
+      where: eq(users.email, normalizedEmail),
     });
 
-    // Privacy: same response even if user doesn't exist
+    // Security: don't reveal if user exists
     if (!user) {
       return NextResponse.json({
         message: "If an account exists, a verification email was sent",
       });
     }
 
-    if (user.emailVerified) {
+    // Already verified → no need to resend email
+    if (user.emailVerifiedAt) {
       return NextResponse.json({
-        message: "Account is already verified",
+        message: "Email already verified",
       });
     }
 
+    // Create token
     const token = await signEmailVerificationToken({
       userId: user.id,
       email: user.email,
     });
 
+    // Debug log for dev mode
+    console.log(
+      "EMAIL_VERIFY_URL:",
+      `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`
+    );
+
+    // Send email
     await sendVerificationEmail({
       to: user.email,
       token,

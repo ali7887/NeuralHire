@@ -37,10 +37,22 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const [category, setCategory] = useState('');
 
   useEffect(() => {
+    // این useEffect پارامترهای URL رو با state های داخلی همگام می‌کنه
+    // مهم اینه که searchParams یک شیء پویاست و وقتی URL تغییر میکنه، این useEffect اجرا میشه.
     setKeyword(searchParams.get('keyword') || '');
     setLocation(searchParams.get('location') || '');
     setCategory(searchParams.get('category') || '');
-  }, [searchParams]);
+  }, [searchParams]); // Dependency array: وقتی searchParams تغییر کنه، این افکت دوباره اجرا میشه
+  
+  // ❌ تابع handleSearch حذف شده چون تکراری و دارای خطا بود
+  // const handleSearch = () => {
+  // const params = new URLSearchParams();
+  // if (query) params.set("search", query); // 'query' is not defined
+  // if (location) params.set("location", location);
+  // if (category) params.set("category", category);
+  // 
+  // router.push(`/jobs?${params.toString()}`);
+  // };
 
   const updateURL = useCallback(
     (params: SearchParams) => {
@@ -51,17 +63,20 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       if (params.category) urlParams.set('category', params.category);
 
       const query = urlParams.toString();
+      // ✅ این خط URL رو به درستی آپدیت می‌کنه
+      // اگر در صفحه /jobs باشی، میشه /jobs?keyword=...
+      // اگر query خالی باشه، میشه pathname (مثلاً /jobs)
       router.push(query ? `${pathname}?${query}` : pathname);
     },
-    [pathname, router]
+    [pathname, router] // Dependencies برای useCallback
   );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const params = { keyword, location, category };
-    updateURL(params);
-    onSearch?.(params);
+    updateURL(params); // ✅ استفاده از updateURL برای بروزرسانی URL
+    onSearch?.(params); // ✅ فراخوانی onSearch اگر تعریف شده باشد
   };
 
   return (

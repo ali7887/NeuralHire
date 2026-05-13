@@ -1,59 +1,54 @@
-import React from "react";
+import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 
-// Type definition for searchParams
 type SearchParams = {
   token?: string;
 };
 
-// Props for this page according to Next.js 15 standards
 type Props = {
   searchParams: Promise<SearchParams>;
 };
 
 export default async function ResetPasswordPage({ searchParams }: Props) {
-  // 🟢 Next.js 15 requires awaiting searchParams because it's a Promise
   const resolved = await searchParams;
   const token = resolved?.token;
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md rounded-lg border p-6 shadow">
-        <h1 className="text-xl font-semibold mb-4">Reset Password</h1>
-
-        {/* 🟥 Token missing */}
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f8fafc",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          border: "1px solid #e5e7eb",
+          padding: "32px",
+          boxShadow:
+            "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
+        }}
+      >
         {!token && (
-          <p className="text-red-500">
+          <p
+            style={{
+              color: "#ef4444",
+              textAlign: "center",
+              fontSize: "14px",
+              fontWeight: 500,
+            }}
+          >
             Reset token is missing or invalid.
           </p>
         )}
 
-        {/* 🟢 Token exists → show form */}
-        {token && (
-          <form autoComplete="off" className="space-y-4">
-            <input
-              type="password"
-              name="password"
-              placeholder="New password"
-              className="w-full border rounded p-2"
-              required
-            />
-
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm password"
-              className="w-full border rounded p-2"
-              required
-            />
-
-            <button
-              type="submit"
-              className="w-full bg-black text-white rounded p-2"
-            >
-              Reset Password
-            </button>
-          </form>
-        )}
+        {token && <ResetPasswordForm token={token} />}
       </div>
     </div>
   );

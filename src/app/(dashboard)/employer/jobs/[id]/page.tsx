@@ -1,5 +1,5 @@
 // src/app/(dashboard)/employer/jobs/[id]/page.tsx
-import EmployerJobDetails from "./mployerJobDetails.client";
+import EmployerJobDetails from "./EmployerJobDetails.client";
 
 type Params = {
   params: Promise<{ id: string }>;
