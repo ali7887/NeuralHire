@@ -1,18 +1,29 @@
 import "./forbidden.css";
 
-export default function ForbiddenPage() {
+export default function UnauthorizedPage() {
   return (
-    <div className="forbidden-container">
+    <main className="forbidden-container">
       <div className="forbidden-card">
-        <h1 className="forbidden-code">403</h1>
-        <h2 className="forbidden-title">Access Denied</h2>
+        <h1 className="forbidden-code">
+          403
+        </h1>
+
+        <h2 className="forbidden-title">
+          Unauthorized Access
+        </h2>
+
         <p className="forbidden-description">
-          You do not have permission to access this resource.
+          You do not have permission to access
+          this page.
         </p>
-        <a href="/" className="forbidden-link">
-          Go back home
+
+        <a
+          href="/login"
+          className="forbidden-link"
+        >
+          Go to Login
         </a>
       </div>
-    </div>
+    </main>
   );
 }

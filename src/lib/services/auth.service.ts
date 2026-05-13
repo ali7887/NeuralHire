@@ -1,12 +1,23 @@
-//D:\project\NEW\job-board-saas\src\lib\services\auth.service.ts
+/* eslint-disable no-undef */
 import bcrypt from "bcryptjs";
 import { and, eq, gt } from "drizzle-orm";
+
 import { signEmailVerificationToken } from "@/lib/jwt/jwt.utils";
 import { sendVerificationEmail } from "@/lib/mail/send-verification-email";
 
 import { db } from "@/lib/db";
-import { refreshTokens, users, type User } from "@/lib/db/schema";
-import type { RefreshTokenPayload, UserRole } from "@/lib/jwt/jwt.types";
+
+import {
+  refreshTokens,
+  users,
+  type User,
+} from "@/lib/db/schema";
+
+import type {
+  RefreshTokenPayload,
+  UserRole,
+} from "@/lib/jwt/jwt.types";
+
 import {
   signAccessToken,
   signRefreshToken,
@@ -24,6 +35,7 @@ type RegisterInput = {
   name?: string;
   email: string;
   password: string;
+  role?: "employer" | "job-seeker";
 };
 
 type LoginInput = {
@@ -32,7 +44,12 @@ type LoginInput = {
 };
 
 export const authService = {
-  async register({ name, email, password }: RegisterInput) {
+  async register({
+    name,
+    email,
+    password,
+    role,
+  }: RegisterInput) {
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = await db.query.users.findFirst({
@@ -45,28 +62,37 @@ export const authService = {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // normalize + validate role
+    const normalizedRole =
+      role === "employer"
+        ? "employer"
+        : "job-seeker";
+
     const inserted = await db
       .insert(users)
       .values({
         name: name?.trim() || null,
         email: normalizedEmail,
         passwordHash,
-        role: "job-seeker",
+        role: normalizedRole,
         emailVerifiedAt: new Date(),
       })
       .returning();
 
     const user = inserted[0];
+
     if (!user) {
       throw new Error("Failed to create user");
     }
 
-    const verifyToken = await signEmailVerificationToken({
-      userId: user.id,
-      email: user.email,
-    });
+    const verifyToken =
+      await signEmailVerificationToken({
+        userId: user.id,
+        email: user.email,
+      });
 
-    const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verifyToken}`;
+    const verifyUrl =
+      `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verifyToken}`;
 
     console.log("EMAIL_VERIFY_URL:", verifyUrl);
 
@@ -80,18 +106,20 @@ export const authService = {
         throw error;
       }
 
-      console.warn("Email sending failed in development mode:", error);
+      console.warn(
+        "Email sending failed in development mode:",
+        error
+      );
     }
 
     const tokens = await this.loginUser(user);
 
     return {
+      success: true,
       user: this.toSafeUser(user),
       ...tokens,
     };
-  }
-
-  ,
+  },
 
   async login({ email, password }: LoginInput) {
     const normalizedEmail = email.trim().toLowerCase();
@@ -117,31 +145,28 @@ export const authService = {
       throw new Error("Invalid credentials");
     }
 
-    // normalize role
-    const normalizedRole = user.role;
-
-
     const tokens = await this.loginUser({
       id: user.id,
       email: user.email,
-      role: normalizedRole,
-
+      role: user.role,
     });
 
     return {
+      success: true,
       user: this.toSafeUser(user),
       ...tokens,
     };
-  }
+  },
 
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<void> {
+    const payload =
+      await verifyResetPasswordToken(token);
 
-
-  ,
-
-  async resetPassword(token: string, newPassword: string): Promise<void> {
-    const payload = await verifyResetPasswordToken(token);
-
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash =
+      await bcrypt.hash(newPassword, 10);
 
     await db
       .update(users)
@@ -155,18 +180,21 @@ export const authService = {
   },
 
   async logout(refreshToken: string): Promise<void> {
-    const payload = await this.verifyRefreshToken(refreshToken);
+    const payload =
+      await this.verifyRefreshToken(refreshToken);
+
     await this.revokeRefreshToken(payload.tokenId);
   },
 
   async logoutAll(userId: string): Promise<number> {
-    const activeTokens = await db.query.refreshTokens.findMany({
-      where: and(
-        eq(refreshTokens.userId, userId),
-        eq(refreshTokens.isRevoked, false),
-        gt(refreshTokens.expiresAt, new Date())
-      ),
-    });
+    const activeTokens =
+      await db.query.refreshTokens.findMany({
+        where: and(
+          eq(refreshTokens.userId, userId),
+          eq(refreshTokens.isRevoked, false),
+          gt(refreshTokens.expiresAt, new Date())
+        ),
+      });
 
     if (activeTokens.length === 0) {
       return 0;
@@ -182,17 +210,25 @@ export const authService = {
     return activeTokens.length;
   },
 
-  async verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
+  async verifyRefreshToken(
+    token: string
+  ): Promise<RefreshTokenPayload> {
     return verifyRefreshTokenJwt(token);
   },
 
-  async revokeRefreshToken(tokenId: string): Promise<void> {
-    const tokenRecords = await db.query.refreshTokens.findMany({
-      where: eq(refreshTokens.isRevoked, false),
-    });
+  async revokeRefreshToken(
+    tokenId: string
+  ): Promise<void> {
+    const tokenRecords =
+      await db.query.refreshTokens.findMany({
+        where: eq(refreshTokens.isRevoked, false),
+      });
 
     for (const record of tokenRecords) {
-      const matches = await bcrypt.compare(tokenId, record.tokenHash);
+      const matches = await bcrypt.compare(
+        tokenId,
+        record.tokenHash
+      );
 
       if (matches) {
         await db
@@ -207,19 +243,26 @@ export const authService = {
     }
   },
 
-  async rotateRefreshToken(oldRefreshToken: string): Promise<string> {
-    const payload = await this.verifyRefreshToken(oldRefreshToken);
+  async rotateRefreshToken(
+    oldRefreshToken: string
+  ): Promise<string> {
+    const payload =
+      await this.verifyRefreshToken(oldRefreshToken);
 
     await this.revokeRefreshToken(payload.tokenId);
 
     const newTokenId = crypto.randomUUID();
-    const newTokenHash = await bcrypt.hash(newTokenId, 10);
+
+    const newTokenHash =
+      await bcrypt.hash(newTokenId, 10);
 
     await db.insert(refreshTokens).values({
       id: crypto.randomUUID(),
       userId: payload.userId,
       tokenHash: newTokenHash,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expiresAt: new Date(
+        Date.now() + 1000 * 60 * 60 * 24 * 30
+      ),
       isRevoked: false,
     });
 
@@ -229,18 +272,23 @@ export const authService = {
     });
   },
 
-  async loginUser(user: Pick<User, "id" | "email" | "role">): Promise<AuthTokens> {
+  async loginUser(
+    user: Pick<User, "id" | "email" | "role">
+  ): Promise<AuthTokens> {
     const tokenId = crypto.randomUUID();
-    const tokenHash = await bcrypt.hash(tokenId, 10);
+
+    const tokenHash =
+      await bcrypt.hash(tokenId, 10);
 
     await db.insert(refreshTokens).values({
       id: crypto.randomUUID(),
       userId: user.id,
       tokenHash,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expiresAt: new Date(
+        Date.now() + 1000 * 60 * 60 * 24 * 30
+      ),
       isRevoked: false,
     });
-
 
     const role = user.role as UserRole;
 
@@ -261,8 +309,11 @@ export const authService = {
     };
   },
 
-  async createResetPasswordToken(email: string): Promise<string> {
-    const normalizedEmail = email.trim().toLowerCase();
+  async createResetPasswordToken(
+    email: string
+  ): Promise<string> {
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
     const user = await db.query.users.findFirst({
       where: eq(users.email, normalizedEmail),
@@ -280,6 +331,7 @@ export const authService = {
 
   toSafeUser(user: User) {
     const { passwordHash, ...safeUser } = user;
+
     return safeUser;
   },
 };

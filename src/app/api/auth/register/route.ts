@@ -1,27 +1,33 @@
-//D:\project\NEW\job-board-saas\src\app\api\auth\register\route.ts
-export const runtime = "nodejs";
+/* eslint-disable no-undef */
+import { NextResponse } from "next/server";
 
-import { NextResponse } from "next/server";import { authService } from "@/lib/services/auth.service";
+import { authService } from "@/lib/services/auth.service";
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name } = await req.json();
+    const body = await req.json();
 
-    // تمام عملیات ثبت‌نام داخل authService انجام می‌شود
-    const result = await authService.register({
-      email,
-      password,
-      name,
+    const result =
+      await authService.register(body);
+
+    return NextResponse.json(result, {
+      status: 201,
     });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
 
-    return NextResponse.json(result, { status: 201 });
-
-  } catch (err: any) {
-    console.error("REGISTER ERROR:", err);
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Registration failed";
 
     return NextResponse.json(
-      { message: err.message || "Registration failed" },
-      { status: 400 }
+      {
+        error: message,
+      },
+      {
+        status: 400,
+      }
     );
   }
 }

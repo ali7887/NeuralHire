@@ -8,23 +8,26 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const menu = [
-    { href: "/dashboard/employer", label: "Dashboard" },
-    { href: "/dashboard/employer/jobs", label: "Jobs" },
-    { href: "/dashboard/employer/jobs/create", label: "Create Job" },
+    { href: "/employer", label: "Dashboard" },
+    { href: "/employer/jobs", label: "Jobs" },
+    { href: "/employer/jobs/create", label: "Create Job" },
   ];
+
+  const isActive = (href: string) => {
+    if (href === "/employer") return pathname === "/employer";
+    return pathname.startsWith(href);
+  };
 
   return (
     <aside className={styles.sidebar}>
-      <h2 className={styles.logo}>Employer Panel</h2>
+      <div className={styles.logo}>Employer Panel</div>
 
-      <nav>
+      <nav className={styles.nav}>
         {menu.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`${styles.link} ${
-              pathname === item.href ? styles.active : ""
-            }`}
+            className={`${styles.link} ${isActive(item.href) ? styles.active : ""}`}
           >
             {item.label}
           </Link>

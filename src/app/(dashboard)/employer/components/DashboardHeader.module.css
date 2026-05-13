@@ -1,13 +1,76 @@
 .header {
-  height: 64px;
+  height: 72px;
   border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  background: #fff;
+  justify-content: space-between;
+
+  padding: 0 32px;
+
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.left {
+  display: flex;
+  align-items: center;
 }
 
 .title {
-  font-size: 1.25rem;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.company {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.companyName {
+  font-size: 14px;
   font-weight: 600;
+  color: #111827;
+}
+
+.role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+  font-size: 14px;
+
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }

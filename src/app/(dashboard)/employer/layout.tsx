@@ -1,15 +1,28 @@
+/* eslint-disable no-undef */
 import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import styles from "./layout.module.css";
 
-export default function EmployerDashboardLayout({ children }: { children: React.ReactNode }) {
+import { requireRole } from "@/lib/auth/require-role";
+
+export default async function EmployerDashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  await requireRole(["employer"]);
+
   return (
     <div className={styles.container}>
       <Sidebar />
 
       <div className={styles.main}>
         <DashboardHeader />
-        <div className={styles.content}>{children}</div>
+
+        <div className={styles.content}>
+          {children}
+        </div>
       </div>
     </div>
   );

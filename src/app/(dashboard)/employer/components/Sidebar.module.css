@@ -1,29 +1,44 @@
 .sidebar {
-  width: 260px;
+  width: 240px;
+  height: 100vh;
+  flex-shrink: 0;
+
   background: #1f2937;
-  color: #fff;
-  padding: 20px;
+  color: #ffffff;
+  padding: 24px 16px;
+
+  position: sticky;
+  top: 0;
 }
 
 .logo {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .link {
   display: block;
-  padding: 12px;
+  padding: 10px 14px;
   border-radius: 6px;
+
   color: #d1d5db;
   text-decoration: none;
-  margin-bottom: 4px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .link:hover {
   background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .active {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }

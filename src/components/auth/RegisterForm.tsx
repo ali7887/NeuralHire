@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 "use client";
 
 import React, { useState } from "react";
@@ -6,7 +7,17 @@ import styles from "./register.module.css";
 import { Input } from "@/components/ui/Input/Input/input";
 import Button from "@/components/ui/Button";
 
-type Role = "employer" | "job-seeker";
+type Role =
+  | "employer"
+  | "job-seeker"
+  
+
+type RegisterResponse = {
+  user?: {
+    role: Role;
+  };
+  error?: string;
+};
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -14,64 +25,93 @@ export default function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("job-seeker");
 
-  const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [role, setRole] =
+    useState<Role>("job-seeker");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [formError, setFormError] =
+    useState<string | null>(null);
 
   function validateEmail(value: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     return emailRegex.test(value);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
     e.preventDefault();
+
     setFormError(null);
 
-    if (!name || !email || !password) {
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    const trimmedName = name.trim();
+
+    if (
+      !trimmedName ||
+      !normalizedEmail ||
+      !password
+    ) {
       setFormError("All fields are required.");
       return;
     }
 
-    if (!validateEmail(email)) {
-      setFormError("Please enter a valid email address.");
+    if (!validateEmail(normalizedEmail)) {
+      setFormError(
+        "Please enter a valid email address."
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      // eslint-disable-next-line no-undef
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role,
-        }),
-      });
+      const res = await fetch(
+        "/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            name: trimmedName,
+            email: normalizedEmail,
+            password,
+            role,
+          }),
+        }
+      );
 
-      const data = await res.json();
+      const data: RegisterResponse =
+        await res.json();
 
       if (!res.ok) {
-        setFormError(data.error || "Registration failed.");
+        setFormError(
+          data.error || "Registration failed."
+        );
         return;
       }
 
-      if (data.user.role === "employer") {
-        router.push("/employer/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/login");
+      router.refresh();
 
     } catch (err) {
-      // eslint-disable-next-line no-undef
-      console.error(err);
-      setFormError("Network error. Please try again.");
+      console.error(
+        "[REGISTER_ERROR]",
+        err
+      );
+
+      setFormError(
+        "Network error. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -79,19 +119,27 @@ export default function RegisterForm() {
 
   return (
     <div className={styles.authCard}>
-      <h1 className={styles.title}>Create account</h1>
+      <h1 className={styles.title}>
+        Create account
+      </h1>
+
       <p className={styles.subtitle}>
-        Join the platform and start your journey.
+        Join the platform and start your
+        journey.
       </p>
 
-      <form onSubmit={handleSubmit} className={styles.registerForm} autoComplete="off">
-
+      <form
+        onSubmit={handleSubmit}
+        className={styles.registerForm}
+      >
         <Input
           label="Full Name"
           type="text"
           placeholder="John Doe"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) =>
+            setName(e.target.value)
+          }
           fullWidth
         />
 
@@ -99,9 +147,10 @@ export default function RegisterForm() {
           label="Email"
           type="email"
           placeholder="you@example.com"
-          autoComplete="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
           fullWidth
         />
 
@@ -109,14 +158,17 @@ export default function RegisterForm() {
           label="Password"
           type="password"
           placeholder="••••••••"
-          autoComplete="new-password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
           fullWidth
         />
 
         <div className={styles.roleGroup}>
-          <span className={styles.roleLabel}>Account type</span>
+          <span className={styles.roleLabel}>
+            Account type
+          </span>
 
           <label className={styles.roleOption}>
             <input
@@ -124,7 +176,9 @@ export default function RegisterForm() {
               name="role"
               value="job-seeker"
               checked={role === "job-seeker"}
-              onChange={() => setRole("job-seeker")}
+              onChange={() =>
+                setRole("job-seeker")
+              }
             />
             Job seeker
           </label>
@@ -135,35 +189,45 @@ export default function RegisterForm() {
               name="role"
               value="employer"
               checked={role === "employer"}
-              onChange={() => setRole("employer")}
+              onChange={() =>
+                setRole("employer")
+              }
             />
             Employer
           </label>
         </div>
 
         {formError && (
-          <p className={styles.formError}>{formError}</p>
+          <p className={styles.formError}>
+            {formError}
+          </p>
         )}
 
         <Button
           type="submit"
           disabled={loading}
-          className={styles.registerSubmitButton}
+          className={
+            styles.registerSubmitButton
+          }
           fullWidth
         >
-          {loading ? "Creating account..." : "Create account"}
+          {loading
+            ? "Creating account..."
+            : "Create account"}
         </Button>
-
-
       </form>
 
       <div className={styles.footer}>
-        <span>Already have an account?</span>
+        <span>
+          Already have an account?
+        </span>
 
         <button
           type="button"
           className={styles.loginLink}
-          onClick={() => router.push("/login")}
+          onClick={() =>
+            router.push("/login")
+          }
         >
           Sign in
         </button>

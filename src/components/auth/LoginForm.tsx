@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 "use client";
 
 import React, { useState } from "react";
@@ -5,8 +6,13 @@ import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
 import { Input } from "@/components/ui/Input/Input/input";
 import Button from "@/components/ui/Button";
+import { getRedirectPathByRole } from "@/lib/auth/redirect";
 
-type Role = "admin" | "employer" | "job-seeker";
+type Role =
+  | "admin"
+  | "employer"
+  | "job-seeker"
+  
 
 type LoginOk = {
   user: {
@@ -22,8 +28,12 @@ type LoginErr = {
 };
 
 function isLoginOk(data: unknown): data is LoginOk {
-  if (!data || typeof data !== "object") return false;
+  if (!data || typeof data !== "object") {
+    return false;
+  }
+
   const user = (data as any).user;
+
   return (
     user &&
     typeof user.id === "string" &&
@@ -46,19 +56,23 @@ export default function LoginForm() {
 
   function validateEmail(value: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     return emailRegex.test(value);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setFormError(null);
 
-    if (!email || !password) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
       setFormError("Email and password are required.");
       return;
     }
 
-    if (!validateEmail(email)) {
+    if (!validateEmail(normalizedEmail)) {
       setFormError("Please enter a valid email address.");
       return;
     }
@@ -66,7 +80,6 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
 
-      // eslint-disable-next-line no-undef
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -74,34 +87,51 @@ export default function LoginForm() {
         },
         credentials: "include",
         body: JSON.stringify({
-          email,
+          email: normalizedEmail,
           password,
           rememberMe,
         }),
       });
 
-      const data: unknown = await res.json();
+      let data: unknown;
 
-      if (!res.ok) {
-        const err = data as LoginErr;
-        setFormError(err.error || "Login failed.");
-        return;
-      }
-
-      if (!isLoginOk(data)) {
+      try {
+        data = await res.json();
+      } catch {
         setFormError("Invalid server response.");
         return;
       }
 
-      const role = data.user.role;
+      if (!res.ok) {
+        const err = data as LoginErr;
 
-      if (role === "admin") router.push("/admin/dashboard");
-      else if (role === "employer") router.push("/employer/dashboard");
-      else router.push("/dashboard");
+        setFormError(err.error || "Login failed.");
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return;
+      }
+
+      console.log("LOGIN_RESPONSE", data);
+
+
+      if (!isLoginOk(data)) {
+        setFormError("Invalid server response.");
+
+        return;
+      }
+
+      console.log("USER_ROLE", data.user.role);
+      console.log("LOGIN ROLE:", data.user.role);
+
+      const redirectPath = getRedirectPathByRole(
+        data.user.role
+      );
+
+      router.push(redirectPath);
+
+      router.refresh();
     } catch (err) {
-      
+      console.error("[LOGIN_ERROR]", err);
+
       setFormError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -111,12 +141,16 @@ export default function LoginForm() {
   return (
     <div className={styles.authCard}>
       <h1 className={styles.title}>Sign in</h1>
+
       <p className={styles.subtitle}>
         Welcome back! Please enter your details.
       </p>
 
-      <form onSubmit={handleSubmit} className={styles.loginForm} autoComplete="off">
-
+      <form
+        onSubmit={handleSubmit}
+        className={styles.loginForm}
+        autoComplete="off"
+      >
         <Input
           label="Email"
           type="email"
@@ -152,22 +186,29 @@ export default function LoginForm() {
             <input
               type="checkbox"
               checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+              onChange={(e) =>
+                setRememberMe(e.target.checked)
+              }
             />
+
             <span>Remember me</span>
           </label>
 
           <button
             type="button"
             className={styles.forgotPassword}
-            onClick={() => router.push("/forgot-password")}
+            onClick={() =>
+              router.push("/forgot-password")
+            }
           >
             Forgot password?
           </button>
         </div>
 
         {formError && (
-          <p className={`${styles.formError} ${styles.formErrorVisible}`}>
+          <p
+            className={`${styles.formError} ${styles.formErrorVisible}`}
+          >
             {formError}
           </p>
         )}
@@ -180,7 +221,6 @@ export default function LoginForm() {
         >
           {isLoading ? "Signing in..." : "Sign in"}
         </Button>
-
       </form>
 
       <div className={styles.footer}>
