@@ -8,8 +8,7 @@ export type ApplicationStatus =
   | "rejected";
 
 export type JobStatus =
-  | "active"
-  | "closed";
+"active" | "draft" | "closed";
 
 export interface Applicant {
   id: string;
@@ -67,11 +66,25 @@ export function getJob(id: string): Job | undefined {
   return jobs.find((j) => j.id === id);
 }
 
-export function createJob(job: Job) {
-  const jobs = readStorage();
-  jobs.push(job);
-  writeStorage(jobs);
+export function createJob(
+  data: Omit<Job, "id" | "applications" | "status">
+) {
+  const jobs = getJobs();
+
+  const newJob: Job = {
+    id: crypto.randomUUID(),
+    ...data,
+    status: "draft",
+    applications: [],
+  };
+
+  const updated = [newJob, ...jobs];
+
+  localStorage.setItem("jobs", JSON.stringify(updated));
+
+  return newJob;
 }
+
 
 export function updateJob(id: string, updated: Partial<Job>) {
   const jobs = readStorage();
@@ -168,3 +181,24 @@ export function seedMockJobs() {
 
   writeStorage(demo);
 }
+
+export function getDashboardStats() {
+  if (typeof window === "undefined") return null;
+
+  const jobs: Job[] = getJobs();
+
+  const activeJobs = jobs.filter(j => j.status === "active").length;
+  const draftJobs = jobs.filter(j => j.status === "draft").length;
+
+  const applications = jobs.reduce(
+    (acc, job) => acc + job.applications.length,
+    0
+  );
+
+  return {
+    activeJobs,
+    draftJobs,
+    applications,
+  };
+}
+

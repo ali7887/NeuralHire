@@ -10,7 +10,6 @@ export default async function EmployerDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   await requireRole(["employer"]);
 
   return (
@@ -18,7 +17,8 @@ export default async function EmployerDashboardLayout({
       <Sidebar />
 
       <div className={styles.main}>
-        <DashboardHeader />
+        {/* ✅ role باید پاس داده شود */}
+        <DashboardHeader role="employer" />
 
         <div className={styles.content}>
           {children}

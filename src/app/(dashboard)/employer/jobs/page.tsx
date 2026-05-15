@@ -61,7 +61,7 @@ export default function EmployerJobsPage() {
               </button>
 
               <Link href={`/employer/jobs/${job.id}/applicants`} style={btn}>
-                Applicants ({job.applicants})
+                Applicants ({job.applications.length})
               </Link>
             </div>
           </div>
