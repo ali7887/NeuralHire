@@ -1,47 +1,114 @@
-import styles from "./job-details.module.css";
+/* eslint-disable no-undef */
+/* eslint-disable react-hooks/set-state-in-effect */
+"use client"
 
-interface Job {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
+import { useEffect, useState } from "react"
+import { getJob, updateJob, type Job } from "@/lib/mockJobs"
+import { useParams } from "next/navigation"
+
+const USER_EMAIL="user@example.com"
+
+export default function JobDetailsPage(){
+
+const params=useParams()
+const id=params.id as string
+
+const [job,setJob]=useState<Job|null>(null)
+
+function loadJob(){
+
+const data=getJob(id)
+
+if(data){
+setJob(data)
 }
 
-async function getJob(id: string): Promise<Job | null> {
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-  const res = await fetch(`${BASE_URL}/api/public/jobs/${id}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) return null;
-
-  return res.json();
 }
 
-export default async function JobDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+useEffect(()=>{
 
-  const job = await getJob(id);
+loadJob()
 
-  if (!job) {
-    return <div className={styles.notFound}>آگهی پیدا نشد</div>;
-  }
+},[id])
 
-  return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{job.title}</h1>
+function apply(){
 
-      <p className={styles.location}>{job.location}</p>
+if(!job) return
 
-      <div className={styles.description}>
-        {job.description}
-      </div>
-    </div>
-  );
+const alreadyApplied=job.applications.some(
+a=>a.email===USER_EMAIL
+)
+
+if(alreadyApplied){
+alert("You already applied")
+return
+}
+
+const newApplicant={
+id:crypto.randomUUID(),
+name:"Demo User",
+email:USER_EMAIL,
+resume:"#",
+status:"pending" as const
+}
+
+updateJob(job.id,{
+applications:[...job.applications,newApplicant]
+})
+
+alert("Application submitted")
+
+loadJob()
+
+}
+
+if(!job){
+
+return <div style={{padding:40}}>Job not found</div>
+
+}
+
+const applied=job.applications.some(
+a=>a.email===USER_EMAIL
+)
+
+return(
+
+<div style={{padding:40}}>
+
+<h1>{job.title}</h1>
+
+<p>
+<b>Location:</b> {job.location}
+</p>
+
+{job.salary && (
+<p>
+<b>Salary:</b> ${job.salary}
+</p>
+)}
+
+<p>{job.description}</p>
+
+{job.skills && (
+<p>
+<b>Skills:</b> {job.skills.join(", ")}
+</p>
+)}
+
+<br/>
+
+<button
+onClick={apply}
+disabled={applied}
+>
+
+{applied ? "Already Applied ✅" : "Apply for this job"}
+
+</button>
+
+</div>
+
+)
+
 }

@@ -1,43 +1,79 @@
-import React from "react";
-import JobList from "@/components/jobs/JobList";
-import Pagination from "@/components/jobs/Pagination";
-import JobSearchBar from "@/components/jobs/JobSearchBar";
+/* eslint-disable no-undef */
+/* eslint-disable react-hooks/set-state-in-effect */
+"use client"
 
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { getJobs, seedMockJobs, type Job } from "@/lib/mockJobs"
 
-export default async function JobsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string>>;
-}) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
+export default function JobsPage(){
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  function calculateMatch(jobSkills:string[]){
 
-  const res = await fetch(`${BASE_URL}/api/public/jobs?page=${page}`, {
-    cache: "no-store",
-  });
+const resumeSkillsRaw=localStorage.getItem("resumeSkills")
 
-  if (!res.ok) {
-    console.error("Failed to fetch jobs:", await res.text());
-    return <div>Error loading jobs...</div>;
-  }
+if(!resumeSkillsRaw) return null
 
-  const data = await res.json();
+const resumeSkills:string[]=JSON.parse(resumeSkillsRaw)
 
-  return (
-    <div className="container">
-      <h1>Jobs</h1>
-      <JobSearchBar />
+const matched=jobSkills.filter(skill=>
+resumeSkills
+.map(s=>s.toLowerCase())
+.includes(skill.toLowerCase())
+)
 
-      {/* FIX: data.items instead of data.jobs */}
-      <JobList jobs={data.items} />
+return Math.round((matched.length/jobSkills.length)*100)
 
-      <Pagination
-        totalPages={data.totalPages}
-        currentPage={data.page}
-      />
-    </div>
-  );
+}
+
+const [jobs,setJobs]=useState<Job[]>([])
+
+useEffect(()=>{
+
+seedMockJobs()
+
+const data=getJobs()
+
+const active=data.filter(j=>j.status==="active")
+
+setJobs(active)
+
+},[])
+
+return(
+
+<div style={{padding:40}}>
+
+<h1>Jobs</h1>
+
+{jobs.length===0 && <p>No jobs available</p>}
+
+{jobs.map(job=>(
+
+<div
+key={job.id}
+style={{
+border:"1px solid #ddd",
+padding:20,
+marginBottom:12,
+borderRadius:8
+}}
+>
+
+<h3>{job.title}</h3>
+
+<p>{job.location}</p>
+
+<Link href={`/jobs/${job.id}`}>
+View Details
+</Link>
+
+</div>
+
+))}
+
+</div>
+
+)
+
 }

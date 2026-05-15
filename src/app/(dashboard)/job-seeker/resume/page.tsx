@@ -1,45 +1,64 @@
+/* eslint-disable no-undef */
 "use client"
 
+import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
 import { useState } from "react"
 
-export default function ResumePage(){
+const MAX_SIZE = 2 * 1024 * 1024
 
-const [file,setFile]=useState<File|null>(null)
+export default function ResumePage() {
 
-async function upload(){
+  const [message, setMessage] = useState("")
+  const [fileName, setFileName] = useState("")
 
-if(!file) return
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-const form=new FormData()
+    if (file.type !== "application/pdf") {
+      setMessage("Only PDF files are allowed")
+      return
+    }
 
-form.append("resume",file)
+    if (file.size > MAX_SIZE) {
+      setMessage("File must be under 2MB")
+      return
+    }
 
-await fetch("/api/upload/resume",{
-method:"POST",
-body:form
-})
+    const reader = new FileReader()
 
-alert("Resume uploaded")
+    reader.onload = () => {
+      localStorage.setItem("resumeFile", reader.result as string)
+      localStorage.setItem("resumeName", file.name)
 
-}
+      setFileName(file.name)
+      setMessage("Resume uploaded successfully")
+    }
 
-return(
+    reader.readAsDataURL(file)
+  }
 
-<div>
+  return (
+    <>
+      <JobSeekerHeader />
 
-<h2>Upload Resume</h2>
+      <div style={{ padding: "30px" }}>
+        <h2>Upload Resume</h2>
 
-<input
-type="file"
-onChange={(e)=>setFile(e.target.files?.[0]||null)}
-/>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleUpload}
+        />
 
-<button onClick={upload}>
-Upload
-</button>
+        {fileName && (
+          <p>Uploaded: {fileName}</p>
+        )}
 
-</div>
-
-)
-
+        {message && (
+          <p>{message}</p>
+        )}
+      </div>
+    </>
+  )
 }
