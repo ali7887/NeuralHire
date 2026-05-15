@@ -1,20 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import styles from "./Sidebar.module.css";
 import { usePathname } from "next/navigation";
+import styles from "./Sidebar.module.css";
+
+const menu = [
+  { href: "/employer", label: "Dashboard" },
+  { href: "/employer/jobs", label: "Jobs" },
+  { href: "/employer/jobs/create", label: "Create Job" },
+];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
-  const menu = [
-    { href: "/employer", label: "Dashboard" },
-    { href: "/employer/jobs", label: "Jobs" },
-    { href: "/employer/jobs/create", label: "Create Job" },
-  ];
-
   const isActive = (href: string) => {
-    if (href === "/employer") return pathname === "/employer";
+    if (href === "/employer") {
+      return pathname === href;
+    }
+
     return pathname.startsWith(href);
   };
 
@@ -27,7 +30,9 @@ export default function Sidebar() {
           <Link
             key={item.href}
             href={item.href}
-            className={`${styles.link} ${isActive(item.href) ? styles.active : ""}`}
+            className={`${styles.link} ${
+              isActive(item.href) ? styles.active : ""
+            }`}
           >
             {item.label}
           </Link>

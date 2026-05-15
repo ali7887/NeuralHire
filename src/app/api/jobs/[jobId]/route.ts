@@ -16,10 +16,12 @@ const jobs = [
 ];
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  _req: Request,
+  context: { params: Promise<{ jobId: string }> }
 ) {
-  const job = jobs.find((j) => j.id === params.id);
+  const { jobId } = await context.params;
+
+  const job = jobs.find((j) => j.id === jobId);
 
   if (!job) {
     return NextResponse.json(

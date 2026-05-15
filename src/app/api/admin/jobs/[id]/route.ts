@@ -1,4 +1,3 @@
-// src/app/api/admin/jobs/[id]/route.ts
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
@@ -9,12 +8,12 @@ import {
   type NewJob,
 } from "@/lib/db/schema/jobs";
 
-// GET /api/admin/jobs/[id]
+// GET
 export async function GET(
-  req: Request,
+  _req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params; 
+  const { id } = await context.params;
 
   const result = await db
     .select()
@@ -31,12 +30,12 @@ export async function GET(
   return NextResponse.json(job);
 }
 
-// PUT /api/admin/jobs/[id]
+// PUT
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = params.id;
+  const { id } = await context.params;
   const data = await req.json();
 
   const status: JobStatus = data.status ?? "open";
@@ -69,13 +68,12 @@ export async function PUT(
   return NextResponse.json(updated[0]);
 }
 
-
-// DELETE /api/admin/jobs/[id]
+// DELETE
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = params.id;
+  const { id } = await context.params;
 
   const deleted = await db
     .delete(jobs)
