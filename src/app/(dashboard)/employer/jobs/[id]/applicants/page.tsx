@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getJob, updateApplicationStatus } from "@/lib/mockJobs";
 
@@ -10,13 +11,24 @@ export default function ApplicantsPage() {
   const params = useParams();
   const jobId = params.id as string;
 
-  const job = getJob(jobId);
+  const [job, setJob] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+
+    const j = getJob(jobId);
+    setJob(j);
+  }, [jobId]);
+
+  if (!mounted) return null;
   if (!job) return <p>Job not found</p>;
 
   function changeStatus(appId: string, status: Status) {
     updateApplicationStatus(jobId, appId, status);
-    window.location.reload();
+
+    const updated = getJob(jobId);
+    setJob(updated);
   }
 
   return (
@@ -80,14 +92,14 @@ export default function ApplicantsPage() {
 
               <button
                 onClick={() => changeStatus(a.id, "accepted")}
-                style={{ ...actionBtn, background: "#10b981", color: "white" }}
+                style={{ ...actionBtn, background: "#10b981", color: "#fff" }}
               >
                 Accept
               </button>
 
               <button
                 onClick={() => changeStatus(a.id, "rejected")}
-                style={{ ...actionBtn, background: "#ef4444", color: "white" }}
+                style={{ ...actionBtn, background: "#ef4444", color: "#fff" }}
               >
                 Reject
               </button>

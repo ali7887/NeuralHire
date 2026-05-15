@@ -1,13 +1,22 @@
 /* eslint-disable no-undef */
-export type JobStatus = "active" | "draft" | "closed";
+// src/lib/mockJobs.ts
+
+export type ApplicationStatus =
+  | "pending"
+  | "reviewed"
+  | "accepted"
+  | "rejected";
+
+export type JobStatus =
+  | "active"
+  | "closed";
 
 export interface Applicant {
   id: string;
   name: string;
   email: string;
   resume: string;
-  appliedAt: string;
-  status:"pending" | "reviewed" | "accepted" | "rejected";
+  status: ApplicationStatus;
 }
 
 export interface Job {
@@ -16,22 +25,21 @@ export interface Job {
   description: string;
   location: string;
   salary?: number;
-  skills: string[];
-  applicants: number;
-  applications: Applicant[];
+  skills?: string[];
   status: JobStatus;
-  createdAt: string;
+  applications: Applicant[];
 }
 
-const STORAGE_KEY = "employer_jobs";
+const STORAGE_KEY = "jobs";
 
-/* ---------------- helpers ---------------- */
+/* ============================= */
+/* Safe LocalStorage */
+/* ============================= */
 
-function load(): Job[] {
+function readStorage(): Job[] {
   if (typeof window === "undefined") return [];
 
   const raw = localStorage.getItem(STORAGE_KEY);
-
   if (!raw) return [];
 
   try {
@@ -41,131 +49,122 @@ function load(): Job[] {
   }
 }
 
-function save(jobs: Job[]) {
+function writeStorage(jobs: Job[]) {
   if (typeof window === "undefined") return;
-
   localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
 }
 
-/* ---------------- jobs ---------------- */
+/* ============================= */
+/* Job CRUD */
+/* ============================= */
 
 export function getJobs(): Job[] {
-  return load().sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() -
-      new Date(a.createdAt).getTime()
+  return readStorage();
+}
+
+export function getJob(id: string): Job | undefined {
+  const jobs = readStorage();
+  return jobs.find((j) => j.id === id);
+}
+
+export function createJob(job: Job) {
+  const jobs = readStorage();
+  jobs.push(job);
+  writeStorage(jobs);
+}
+
+export function updateJob(id: string, updated: Partial<Job>) {
+  const jobs = readStorage();
+
+  const newJobs = jobs.map((job) =>
+    job.id === id ? { ...job, ...updated } : job
   );
-}
 
-export function getJob(id: string) {
-  return load().find((j) => j.id === id);
-}
-
-export function createJob(data: {
-  title: string;
-  description: string;
-  location: string;
-  salary?: number;
-  skills: string[];
-}) {
-  const jobs = load();
-
-  const fakeApplicants: Applicant[] = [
-    {
-      id: crypto.randomUUID(),
-      name: "John Doe",
-      email: "john@example.com",
-      resume: "/resume.pdf",
-      appliedAt: new Date().toISOString(),
-      status: "pending",
-    },
-  ];
-
-  const newJob: Job = {
-    id: crypto.randomUUID(),
-    title: data.title,
-    description: data.description,
-    location: data.location,
-    salary: data.salary,
-    skills: data.skills,
-    applicants: fakeApplicants.length,
-    applications: fakeApplicants,
-    status: "active",
-    createdAt: new Date().toISOString(),
-  };
-
-  jobs.unshift(newJob);
-
-  save(jobs);
-
-  return newJob;
+  writeStorage(newJobs);
 }
 
 export function deleteJob(id: string) {
-  const jobs = load().filter((j) => j.id !== id);
+  const jobs = readStorage();
 
-  save(jobs);
+  const newJobs = jobs.filter((j) => j.id !== id);
+
+  writeStorage(newJobs);
 }
 
-export function getDashboardStats() {
-  const jobs = load();
-
-  return {
-    activeJobs: jobs.filter((j) => j.status === "active")
-      .length,
-
-    draftJobs: jobs.filter((j) => j.status === "draft")
-      .length,
-
-    applications: jobs.reduce(
-      (acc, j) => acc + j.applicants,
-      0
-    ),
-  };
-}
-export function updateJob(id: string, data: Partial<Job>) {
-  const jobs = load();
-
-  const index = jobs.findIndex((j) => j.id === id);
-
-  if (index === -1) return null;
-
-  jobs[index] = {
-    ...jobs[index],
-    ...data,
-  };
-
-  save(jobs);
-
-  return jobs[index];
-}
+/* ============================= */
+/* Job Status */
+/* ============================= */
 
 export function updateJobStatus(id: string, status: JobStatus) {
-  const jobs = load();
+  const jobs = readStorage();
 
-  const index = jobs.findIndex((j) => j.id === id);
+  const newJobs = jobs.map((job) =>
+    job.id === id ? { ...job, status } : job
+  );
 
-  if (index === -1) return;
-
-  jobs[index].status = status;
-
-  save(jobs);
+  writeStorage(newJobs);
 }
+
+/* ============================= */
+/* Applicant Management */
+/* ============================= */
 
 export function updateApplicationStatus(
   jobId: string,
   appId: string,
-  status: "pending" | "reviewed" | "accepted" | "rejected"
+  status: ApplicationStatus
 ) {
-  const jobs = getJobs();
-  const job = jobs.find((j) => j.id === jobId);
+  const jobs = readStorage();
 
-  if (!job) return;
+  const newJobs = jobs.map((job) => {
+    if (job.id !== jobId) return job;
 
-  const app = job.applications.find((a) => a.id === appId);
-  if (!app) return;
+    return {
+      ...job,
+      applications: job.applications.map((app) =>
+        app.id === appId ? { ...app, status } : app
+      ),
+    };
+  });
 
-  app.status = status;
+  writeStorage(newJobs);
+}
 
-  localStorage.setItem("jobs", JSON.stringify(jobs));
+/* ============================= */
+/* Demo Seed Data */
+/* ============================= */
+
+export function seedMockJobs() {
+  const existing = readStorage();
+  if (existing.length > 0) return;
+
+  const demo: Job[] = [
+    {
+      id: "1",
+      title: "Frontend Developer",
+      description: "Build modern React and Next.js applications.",
+      location: "Remote",
+      salary: 5000,
+      skills: ["React", "Next.js", "TypeScript"],
+      status: "active",
+      applications: [
+        {
+          id: "a1",
+          name: "Ali Kiani",
+          email: "ali@example.com",
+          resume: "#",
+          status: "pending",
+        },
+        {
+          id: "a2",
+          name: "Sara Mohammadi",
+          email: "sara@example.com",
+          resume: "#",
+          status: "reviewed",
+        },
+      ],
+    },
+  ];
+
+  writeStorage(demo);
 }
