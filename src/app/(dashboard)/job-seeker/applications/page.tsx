@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 
@@ -7,81 +8,116 @@ import { getJobs } from "@/lib/mockJobs"
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
 
 type AppView={
-id:string
-jobId:string
-jobTitle:string
-status:string
+  id:string
+  jobId:string
+  jobTitle:string
+  status:string
 }
+
+const USER_EMAIL="user@example.com"
 
 export default function ApplicationsPage(){
 
-const [apps,setApps]=useState<AppView[]>([])
+  const [apps,setApps]=useState<AppView[]>([])
 
-useEffect(()=>{
+  function loadApps(){
 
-const jobs=getJobs()
+    const jobs=getJobs()
 
-const userEmail="user@example.com"
+    const allApps:AppView[]=[]
 
-const allApps:AppView[]=[]
+    jobs.forEach(job=>{
 
-jobs.forEach(job=>{
+      job.applications.forEach(app=>{
 
-job.applications.forEach(app=>{
+        if(app.email===USER_EMAIL){
 
-if(app.email===userEmail){
+          allApps.push({
+            id:app.id,
+            jobId:job.id,
+            jobTitle:job.title,
+            status:app.status
+          })
 
-allApps.push({
-id:app.id,
-jobId:job.id,
-jobTitle:job.title,
-status:app.status
-})
+        }
 
-}
+      })
 
-})
+    })
 
-})
+    setApps(allApps)
 
-setApps(allApps)
+  }
 
-},[])
+  function withdraw(jobId:string){
 
-return(
+    const jobs=getJobs()
 
-<div style={{padding:"30px"}}>
-<JobSeekerHeader />
-<h2>My Applications</h2>
+    const updated=jobs.map(job=>{
 
-{apps.length===0 && <p>No applications yet</p>}
+      if(job.id===jobId){
 
-{apps.map(app=>(
+        job.applications = job.applications.filter(
+          app=>app.email!==USER_EMAIL
+        )
 
-<div
-key={app.id}
-style={{
-border:"1px solid #ddd",
-padding:"16px",
-marginBottom:"12px",
-borderRadius:"8px"
-}}
->
+      }
 
-<h3>{app.jobTitle}</h3>
+      return job
+    })
 
-<p>Status: {app.status}</p>
+    localStorage.setItem("jobs",JSON.stringify(updated))
 
-<Link href={`/jobs/${app.jobId}`}>
-View Job
-</Link>
+    loadApps()
+  }
 
-</div>
+  useEffect(()=>{
+    loadApps()
+  },[])
 
-))}
+  return(
 
-</div>
+    <div style={{padding:"30px"}}>
 
-)
+      <JobSeekerHeader/>
 
+      <h2>My Applications</h2>
+
+      {apps.length===0 && <p>No applications yet</p>}
+
+      {apps.map(app=>(
+
+        <div
+          key={app.id}
+          style={{
+            border:"1px solid #ddd",
+            padding:"16px",
+            marginBottom:"12px",
+            borderRadius:"8px"
+          }}
+        >
+
+          <h3>{app.jobTitle}</h3>
+
+          <p>Status: {app.status}</p>
+
+          <Link href={`/jobs/${app.jobId}`}>
+            View Job
+          </Link>
+
+          <br/>
+
+          <button
+            onClick={()=>withdraw(app.jobId)}
+            style={{marginTop:"8px"}}
+          >
+            Withdraw
+          </button>
+
+        </div>
+
+      ))}
+
+    </div>
+  )
 }

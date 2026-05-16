@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable no-undef */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
@@ -11,30 +11,33 @@ const USER_EMAIL = "user@example.com"
 
 export default function JobsPage() {
 
-  const [jobs, setJobs] = useState<Job[]>([])
+  const [jobs,setJobs] = useState<Job[]>([])
+  const [search,setSearch] = useState("")
 
-  function loadJobs() {
+  function loadJobs(){
     const data = getJobs()
     const active = data.filter(j => j.status === "active")
     setJobs(active)
   }
 
-  useEffect(() => {
+  useEffect(()=>{
     seedMockJobs()
     loadJobs()
-  }, [])
+  },[])
 
-  function apply(jobId: string) {
+  function apply(jobId:string){
+
     const allJobs = getJobs()
+
     const job = allJobs.find(j => j.id === jobId)
 
-    if (!job) return
+    if(!job) return
 
     const alreadyApplied = job.applications.some(
       a => a.email === USER_EMAIL
     )
 
-    if (alreadyApplied) {
+    if(alreadyApplied){
       alert("You already applied")
       return
     }
@@ -47,27 +50,47 @@ export default function JobsPage() {
       status: "pending" as const
     }
 
-    updateJob(jobId, {
-      applications: [...job.applications, newApplicant]
+    updateJob(jobId,{
+      applications:[...job.applications,newApplicant]
     })
 
     loadJobs()
   }
 
-  return (
+  const filteredJobs = jobs.filter(job =>
+    job.title.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return(
     <>
-      <JobSeekerHeader />
+      <JobSeekerHeader/>
 
       <div className={styles.container}>
+
         <h2>Available Jobs</h2>
 
-        {jobs.map(job => {
+        <input
+          placeholder="Search jobs..."
+          value={search}
+          onChange={e=>setSearch(e.target.value)}
+          style={{
+            marginBottom:"20px",
+            padding:"10px",
+            width:"100%",
+            maxWidth:"400px"
+          }}
+        />
+
+        {filteredJobs.map(job=>{
+
           const applied = job.applications.some(
             a => a.email === USER_EMAIL
           )
 
-          return (
+          return(
+
             <div key={job.id} className={styles.card}>
+
               <h3>{job.title}</h3>
 
               <p>{job.description}</p>
@@ -85,14 +108,17 @@ export default function JobsPage() {
               )}
 
               <button
-                onClick={() => apply(job.id)}
+                onClick={()=>apply(job.id)}
                 disabled={applied}
               >
                 {applied ? "Applied ✅" : "Apply"}
               </button>
+
             </div>
+
           )
         })}
+
       </div>
     </>
   )

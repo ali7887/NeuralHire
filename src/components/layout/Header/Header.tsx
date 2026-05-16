@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 'use client';
 
 import Link from 'next/link';
@@ -67,7 +68,7 @@ export function Header() {
           </Link>
 
           <div
-            className={`${styles.stickySearch} ${scrolled ? styles.showSearch : ''}`}
+            className={styles.stickySearch}
             onClick={() => setIsCmdOpen(true)}
           >
             <Search size={16} />

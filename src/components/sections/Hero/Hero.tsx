@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable no-undef */
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
@@ -92,10 +94,7 @@ export default function Hero() {
       ══════════════════════════════════ */}
       <div className={styles.primary}>
 
-        {/* Badge */}
-        <span className={styles.badge}>
-          🚀 Europe's leading tech job board
-        </span>
+
 
         {/* Headline */}
         <h1 className={styles.headline}>
@@ -104,11 +103,7 @@ export default function Hero() {
           in Europe
         </h1>
 
-        {/* Subtext */}
-        <p className={styles.subtext}>
-          Discover high‑growth tech opportunities from Europe's fastest‑growing
-          startups and global engineering teams.
-        </p>
+
 
         {/* ── Search Bar ── */}
         <div className={styles.searchBar}>

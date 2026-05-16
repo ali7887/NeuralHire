@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client"
@@ -14,6 +16,23 @@ const params=useParams()
 const id=params.id as string
 
 const [job,setJob]=useState<Job|null>(null)
+function calculateMatch(jobSkills:string[]){
+
+const resumeSkillsRaw=localStorage.getItem("resumeSkills")
+
+if(!resumeSkillsRaw) return null
+
+const resumeSkills:string[]=JSON.parse(resumeSkillsRaw)
+
+const matched=jobSkills.filter(skill=>
+resumeSkills
+.map(s=>s.toLowerCase())
+.includes(skill.toLowerCase())
+)
+
+return Math.round((matched.length/jobSkills.length)*100)
+
+}
 
 function loadJob(){
 

@@ -1,10 +1,20 @@
-﻿import Link from "next/link"
+﻿/* eslint-disable no-undef */
+import Link from "next/link"
 import styles from "./job-card.module.css"
 import { JobCardDTO } from "@/types/job-card"
 
 
 interface Props {
   job: JobCardDTO
+}
+const saveJob = (id: string) => {
+  const saved = JSON.parse(localStorage.getItem("savedJobs") || "[]")
+
+  if (!saved.includes(id)) {
+    saved.push(id)
+  }
+
+  localStorage.setItem("savedJobs", JSON.stringify(saved))
 }
 
 export default function JobCard({ job }: Props) {
@@ -17,6 +27,10 @@ export default function JobCard({ job }: Props) {
           {job.title}
         </Link>
       </h3>
+      <button onClick={() => saveJob(job.id)}>
+        Save Job
+      </button>
+
 
       <div className={styles.meta}>
 
