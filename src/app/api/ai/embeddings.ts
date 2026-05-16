@@ -1,5 +1,5 @@
 //ok
-import { getGapGPTClient } from "@/lib/ai/gapgpt.client";
+import { getGapGPTClient } from "@/lib/ai/client/gapgpt.client";
 
 export async function getEmbedding(text: string): Promise<number[]> {
   const client = getGapGPTClient();

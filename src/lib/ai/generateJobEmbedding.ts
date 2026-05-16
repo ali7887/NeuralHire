@@ -1,5 +1,5 @@
 // src/lib/ai/generateJobEmbedding.ts
-import { getGapGPTClient } from "./gapgpt.client";
+import { getGapGPTClient } from "./client/gapgpt.client";
 
 export async function generateJobEmbedding(text: string): Promise<number[]> {
   const client = getGapGPTClient();

@@ -3,8 +3,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getDashboardStats, getJobs, Job } from "@/lib/mockJobs";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { getDashboardStats, getJobs } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
 
 type Stats = {
   activeJobs: number;

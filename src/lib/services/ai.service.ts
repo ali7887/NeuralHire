@@ -1,4 +1,4 @@
-import { getGapGPTClient } from "@/lib/ai/gapgpt.client";
+import { getGapGPTClient } from "@/lib/ai/client/gapgpt.client";
 
 export const aiService = {
   generateJobDescription: async ({
@@ -12,27 +12,25 @@ export const aiService = {
   }) => {
     const client = getGapGPTClient();
 
-    const response = await client.chat({
-      model: "gpt-5.2",
-      messages: [
-        {
-          role: "user",
-          content: `
-Generate a professional, well‑structured job description.
+    const response = await client.chat([
+      {
+        role: "user",
+        content: `
+Generate a professional job description.
+
 Title: ${title}
 Seniority: ${seniority}
-Required Skills: ${skills.join(", ")}
+Skills: ${skills.join(", ")}
 
-Output format:
+Sections:
 - Overview
 - Responsibilities
 - Required Skills
 - Preferred Skills
 - Benefits
-          `,
-        },
-      ],
-    });
+`,
+      },
+    ]);
 
     return response.choices?.[0]?.message?.content ?? "";
   },

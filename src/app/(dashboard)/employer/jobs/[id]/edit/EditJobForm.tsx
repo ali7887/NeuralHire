@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { Job } from "@/lib/mockJobs";
+import type { Job } from "@/lib/types/job.types";
 
 type Props = {
   jobData: Job;

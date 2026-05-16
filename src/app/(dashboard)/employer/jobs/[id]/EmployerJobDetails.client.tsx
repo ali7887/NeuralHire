@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button/Button";
 import styles from "./EmployerJobDetails.module.css";
-import { getJob, updateJobStatus, deleteJob, Job } from "@/lib/mockJobs";
+import { getJob, updateJobStatus, deleteJob } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
 
 export default function EmployerJobDetails({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -28,7 +30,7 @@ export default function EmployerJobDetails({ params }: { params: { id: string } 
         Close Job
       </Button>
 
-      <Button onClick={() => updateJobStatus(job.id, "active")}>
+      <Button onClick={() => updateJobStatus(job.id, "open")}>
         Reopen Job
       </Button>
 

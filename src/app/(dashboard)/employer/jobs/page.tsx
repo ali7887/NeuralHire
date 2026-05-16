@@ -6,7 +6,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getJobs, deleteJob, Job } from "@/lib/mockJobs";
+import type { Job } from "@/lib/types/job.types"
+import { getJobs, deleteJob } from "@/lib/mockJobs"
+
+
 
 export default function EmployerJobsPage() {
   const router = useRouter();
@@ -62,7 +65,7 @@ export default function EmployerJobsPage() {
               </button>
 
               <Link href={`/employer/jobs/${job.id}/applicants`} style={btn}>
-                Applicants ({job.applications.length})
+                Applicants ({job.applications?.length ?? 0})
               </Link>
             </div>
           </div>

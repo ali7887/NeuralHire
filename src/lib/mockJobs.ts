@@ -1,204 +1,265 @@
 /* eslint-disable no-undef */
-// src/lib/mockJobs.ts
 
-export type ApplicationStatus =
-  | "pending"
-  | "reviewed"
-  | "accepted"
-  | "rejected";
+import type {
+  Job,
+  JobApplication,
+  JobApplicationStatus
+} from "@/lib/types/job.types"
 
-export type JobStatus =
-"active" | "draft" | "closed";
+const STORAGE_KEY = "jobs"
 
-export interface Applicant {
-  id: string;
-  name: string;
-  email: string;
-  resume: string;
-  status: ApplicationStatus;
-}
-
-export interface Job {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  salary?: number;
-  skills?: string[];
-  status: JobStatus;
-  applications: Applicant[];
-}
-
-const STORAGE_KEY = "jobs";
-
-/* ============================= */
-/* Safe LocalStorage */
-/* ============================= */
+/* =====================================================
+   Safe LocalStorage
+===================================================== */
 
 function readStorage(): Job[] {
-  if (typeof window === "undefined") return [];
 
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
+  if (typeof window === "undefined") return []
+
+  const raw = localStorage.getItem(STORAGE_KEY)
+
+  if (!raw) return []
 
   try {
-    return JSON.parse(raw);
+    return JSON.parse(raw)
   } catch {
-    return [];
+    return []
   }
 }
 
 function writeStorage(jobs: Job[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+
+  if (typeof window === "undefined") return
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs))
 }
 
-/* ============================= */
-/* Job CRUD */
-/* ============================= */
+/* =====================================================
+   Job CRUD
+===================================================== */
 
 export function getJobs(): Job[] {
-  return readStorage();
+  return readStorage()
 }
 
 export function getJob(id: string): Job | undefined {
-  const jobs = readStorage();
-  return jobs.find((j) => j.id === id);
+
+  const jobs = readStorage()
+
+  return jobs.find((j) => j.id === id)
 }
 
 export function createJob(
-  data: Omit<Job, "id" | "applications" | "status">
-) {
-  const jobs = getJobs();
+  data: Omit<
+    Job,
+    "id" | "createdAt" | "updatedAt" | "applications" | "applicants"
+  >
+): Job {
+
+  const jobs = readStorage()
 
   const newJob: Job = {
-    id: crypto.randomUUID(),
+
     ...data,
-    status: "draft",
+
+    id: crypto.randomUUID(),
+
+    createdAt: new Date(),
+    updatedAt: new Date(),
+
     applications: [],
-  };
+    applicants: 0,
 
-  const updated = [newJob, ...jobs];
+    skills: data.skills ?? []
+  }
 
-  localStorage.setItem("jobs", JSON.stringify(updated));
+  const updated = [newJob, ...jobs]
 
-  return newJob;
+  writeStorage(updated)
+
+  return newJob
 }
 
-
 export function updateJob(id: string, updated: Partial<Job>) {
-  const jobs = readStorage();
 
-  const newJobs = jobs.map((job) =>
-    job.id === id ? { ...job, ...updated } : job
-  );
+  const jobs = readStorage()
 
-  writeStorage(newJobs);
+  const newJobs = jobs.map((job) => {
+
+    if (job.id !== id) return job
+
+    return {
+      ...job,
+      ...updated,
+      updatedAt: new Date()
+    }
+
+  })
+
+  writeStorage(newJobs)
 }
 
 export function deleteJob(id: string) {
-  const jobs = readStorage();
 
-  const newJobs = jobs.filter((j) => j.id !== id);
+  const jobs = readStorage()
 
-  writeStorage(newJobs);
+  const newJobs = jobs.filter((j) => j.id !== id)
+
+  writeStorage(newJobs)
 }
 
-/* ============================= */
-/* Job Status */
-/* ============================= */
+/* =====================================================
+   Job Status
+===================================================== */
 
-export function updateJobStatus(id: string, status: JobStatus) {
-  const jobs = readStorage();
+export function updateJobStatus(
+  id: string,
+  status: Job["status"]
+) {
+
+  const jobs = readStorage()
 
   const newJobs = jobs.map((job) =>
-    job.id === id ? { ...job, status } : job
-  );
+    job.id === id
+      ? { ...job, status, updatedAt: new Date() }
+      : job
+  )
 
-  writeStorage(newJobs);
+  writeStorage(newJobs)
 }
 
-/* ============================= */
-/* Applicant Management */
-/* ============================= */
+/* =====================================================
+   Applicant Management
+===================================================== */
+
+export function applyToJob(
+  jobId: string,
+  applicant: JobApplication
+) {
+
+  const jobs = readStorage()
+
+  const newJobs = jobs.map((job) => {
+
+    if (job.id !== jobId) return job
+
+    const updatedApps = [...(job.applications ?? []), applicant]
+
+    return {
+      ...job,
+      applications: updatedApps,
+      applicants: updatedApps.length
+    }
+
+  })
+
+  writeStorage(newJobs)
+}
 
 export function updateApplicationStatus(
   jobId: string,
   appId: string,
-  status: ApplicationStatus
+  status: JobApplicationStatus
 ) {
-  const jobs = readStorage();
+
+  const jobs = readStorage()
 
   const newJobs = jobs.map((job) => {
-    if (job.id !== jobId) return job;
+
+    if (job.id !== jobId) return job
 
     return {
       ...job,
-      applications: job.applications.map((app) =>
-        app.id === appId ? { ...app, status } : app
-      ),
-    };
-  });
+      applications: job.applications?.map((app) =>
+        app.id === appId
+          ? { ...app, status }
+          : app
+      ) ?? []
+    }
 
-  writeStorage(newJobs);
+  })
+
+  writeStorage(newJobs)
 }
 
-/* ============================= */
-/* Demo Seed Data */
-/* ============================= */
+/* =====================================================
+   Demo Seed Data
+===================================================== */
 
 export function seedMockJobs() {
-  const existing = readStorage();
-  if (existing.length > 0) return;
+
+  const existing = readStorage()
+
+  if (existing.length > 0) return
 
   const demo: Job[] = [
+
     {
       id: "1",
+
       title: "Frontend Developer",
       description: "Build modern React and Next.js applications.",
+
       location: "Remote",
       salary: 5000,
-      skills: ["React", "Next.js", "TypeScript"],
-      status: "active",
-      applications: [
-        {
-          id: "a1",
-          name: "Ali Kiani",
-          email: "ali@example.com",
-          resume: "#",
-          status: "pending",
-        },
-        {
-          id: "a2",
-          name: "Sara Mohammadi",
-          email: "sara@example.com",
-          resume: "#",
-          status: "reviewed",
-        },
-      ],
-    },
-  ];
 
-  writeStorage(demo);
+      type: "FULL_TIME",
+      level: "mid",
+
+      companyId: "demo-company",
+      employerId: "demo-employer",
+
+      isActive: true,
+      published: true,
+
+      isRemote: true,
+
+      status: "open",
+
+      createdAt: new Date(),
+      updatedAt: new Date(),
+
+      skills: ["React", "Next.js", "TypeScript"],
+
+      applicants: 2,
+
+      applications: []
+    }
+
+
+  ]
+
+  writeStorage(demo)
+
 }
 
+/* =====================================================
+   Dashboard Stats
+===================================================== */
+
 export function getDashboardStats() {
-  if (typeof window === "undefined") return null;
 
-  const jobs: Job[] = getJobs();
+  if (typeof window === "undefined") return null
 
-  const activeJobs = jobs.filter(j => j.status === "active").length;
-  const draftJobs = jobs.filter(j => j.status === "draft").length;
+  const jobs = readStorage()
+
+  const activeJobs = jobs.filter(
+    (j) => j.status === "open"
+  ).length
+
+
+  const draftJobs = jobs.filter(
+    (j) => j.status === "draft"
+  ).length
 
   const applications = jobs.reduce(
-    (acc, job) => acc + job.applications.length,
+    (acc, job) => acc + (job.applications?.length ?? 0),
     0
-  );
+  )
 
   return {
     activeJobs,
     draftJobs,
-    applications,
-  };
+    applications
+  }
 }
-

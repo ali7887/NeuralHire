@@ -5,6 +5,8 @@
 import { useEffect,useState } from "react"
 import Link from "next/link"
 import { getJobs } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
 
 type AppView={
@@ -28,7 +30,8 @@ export default function ApplicationsPage(){
 
     jobs.forEach(job=>{
 
-      job.applications.forEach(app=>{
+      job.applications?.forEach(app=>{
+
 
         if(app.email===USER_EMAIL){
 
@@ -57,7 +60,8 @@ export default function ApplicationsPage(){
 
       if(job.id===jobId){
 
-        job.applications = job.applications.filter(
+        job.applications = (job.applications ?? []).filter(
+
           app=>app.email!==USER_EMAIL
         )
 

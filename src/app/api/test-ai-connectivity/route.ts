@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { NextResponse } from "next/server";
 import { testGemini, testGroq, testDeepSeek } from "@/lib/aiConnectivity";
 

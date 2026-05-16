@@ -5,7 +5,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getJob, updateJob, type Job } from "@/lib/mockJobs"
+import { getJob, updateJob } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
 import { useParams } from "next/navigation"
 
 const USER_EMAIL="user@example.com"
@@ -54,7 +56,8 @@ function apply(){
 
 if(!job) return
 
-const alreadyApplied=job.applications.some(
+const alreadyApplied=job.applications?.some(
+
 a=>a.email===USER_EMAIL
 )
 
@@ -71,8 +74,9 @@ resume:"#",
 status:"pending" as const
 }
 
+
 updateJob(job.id,{
-applications:[...job.applications,newApplicant]
+  applications:[...(job.applications ?? []), newApplicant]
 })
 
 alert("Application submitted")
@@ -87,9 +91,9 @@ return <div style={{padding:40}}>Job not found</div>
 
 }
 
-const applied=job.applications.some(
-a=>a.email===USER_EMAIL
-)
+const applied = job.applications?.some(
+  a => a.email === USER_EMAIL
+) ?? false
 
 return(
 

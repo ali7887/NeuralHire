@@ -4,7 +4,9 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { getJobs, seedMockJobs, type Job } from "@/lib/mockJobs"
+import { getJobs, seedMockJobs } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
 
 export default function JobsPage(){
 
@@ -34,7 +36,7 @@ seedMockJobs()
 
 const data=getJobs()
 
-const active=data.filter(j=>j.status==="active")
+const active=data.filter(j=>j.status==="open")
 
 setJobs(active)
 

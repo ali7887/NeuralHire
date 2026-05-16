@@ -1,7 +1,8 @@
-import { NextRequest } from "next/server";
-import { getGapGPTClient } from "@/lib/ai/gapgpt.client";
-import { CAREER_ASSISTANT_SYSTEM } from "@/app/api/ai/prompts";
+/* eslint-disable no-undef */
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getGapGPTClient } from "@/lib/ai/client/gapgpt.client";
+import { CAREER_ASSISTANT_SYSTEM } from "@/app/api/ai/prompts";
 
 const schema = z.object({
   messages: z.array(
@@ -13,34 +14,38 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parsed = schema.safeParse(body);
 
-  if (!parsed.success) {
-    return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400 });
+  try {
+
+    const body = await req.json();
+    const parsed = schema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      );
+    }
+
+    const client = getGapGPTClient();
+
+    const response = await client.chat([
+      { role: "system", content: CAREER_ASSISTANT_SYSTEM },
+      ...parsed.data.messages,
+    ]);
+
+    const reply =
+      response.choices?.[0]?.message?.content ?? "No response";
+
+    return NextResponse.json({ reply });
+
+  } catch (error) {
+
+    console.error("Chat API error:", error);
+
+    return NextResponse.json(
+      { error: "Chat failed" },
+      { status: 500 }
+    );
   }
-
-  const client = getGapGPTClient();
-
-  const response = await fetch(`${client.apiUrl}/v1/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${client.apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: client.model,
-      messages: [
-        { role: "system", content: CAREER_ASSISTANT_SYSTEM },
-        ...parsed.data.messages,
-      ],
-    }),
-  });
-
-  const data = await response.json();
-
-  return new Response(
-    JSON.stringify({ reply: data.choices?.[0]?.message?.content }),
-    { status: 200 }
-  );
 }

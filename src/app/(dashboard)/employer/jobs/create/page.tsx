@@ -45,8 +45,16 @@ export default function CreateJobPage() {
       title: form.title,
       description: form.description,
       location: form.location,
-      salary: form.salary ? Number(form.salary) : undefined,
+      salary: form.salary ? Number(form.salary) : null,
       skills: form.skills.split(",").map((s) => s.trim()),
+      isRemote: null,
+      type: null,
+      level: null,
+      companyId: null,
+      employerId: null,
+      isActive: null,
+      published: null,
+      status: "draft"
     });
 
     router.push("/employer/jobs");

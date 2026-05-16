@@ -6,6 +6,7 @@ import Link from "next/link"
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
 import { useEffect, useState } from "react"
 import { getJobs } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
 
 export default function JobSeekerDashboard() {
 
@@ -16,11 +17,16 @@ export default function JobSeekerDashboard() {
   useEffect(() => {
     // Jobs
     const jobs = getJobs()
-    setActiveJobs(jobs.filter(j => j.status === "active").length)
+    setActiveJobs(jobs.filter(j => j.status === "open").length)
 
     // Applications
-    const totalApps = jobs.reduce((count, job) => count + job.applications.length, 0)
-    setApplications(totalApps)
+   const totalApps = jobs.reduce(
+  (count, job) => count + (job.applications?.length ?? 0),
+  0
+)
+
+setApplications(totalApps)
+
 
     // Profile Score (simple)
     const resume = localStorage.getItem("resumeFile")

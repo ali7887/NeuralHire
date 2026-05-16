@@ -1,36 +1,59 @@
+/* eslint-disable no-undef */
 /* eslint-disable react-hooks/set-state-in-effect */
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 
-import type { Job } from "@/lib/types/job.types";
-import { getJob } from "@/lib/mockJobs";
+import { getJob } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
+
+import { calcMatchScore } from "@/lib/ai/matchScore"
+import { summarizeJob } from "@/lib/ai/summarizeJob"
 
 export default function JobDetailsPage() {
-  const params = useParams<{ id: string }>();
 
-  const [job, setJob] = useState<Job | null>(null);
+  const params = useParams<{ id: string }>()
+
+  const [job, setJob] = useState<Job | null>(null)
+  const [score,setScore]=useState<number>(0)
 
   useEffect(() => {
-    if (!params?.id) return;
 
-    const found = getJob(params.id);
+    if (!params?.id) return
 
-    if (found) {
-      setJob(found as unknown as Job);
-    }
-  }, [params?.id]);
+    const found = getJob(params.id)
+
+    if (!found) return
+
+    setJob(found)
+
+    const userSkills = JSON.parse(
+      localStorage.getItem("userSkills") || "[]"
+    )
+
+    const jobSkills = found.skills ?? []
+
+    const matchScore = calcMatchScore(jobSkills,userSkills)
+
+    setScore(matchScore)
+
+  }, [params?.id])
 
   if (!job) {
-    return <p>Job not found.</p>;
+    return <p>Job not found.</p>
   }
 
-  const skills = (job as any).skills ?? [];
-  const applicants = (job as any).applicants ?? 0;
+  const skills: string[] = job.skills ?? []
+  const applicants: number = job.applicants ?? 0
+
+  const summary = summarizeJob(job.description)
 
   return (
+
     <div style={{ maxWidth: 900 }}>
+
       <div style={header}>
         <div>
           <h1 style={title}>{job.title}</h1>
@@ -38,8 +61,16 @@ export default function JobDetailsPage() {
         </div>
 
         {job.status && (
-          <div style={badge}>{job.status}</div>
+          <div style={badge}>
+            {job.status}
+          </div>
         )}
+
+      </div>
+
+      <div style={section}>
+        <h3>AI Job Summary</h3>
+        <p style={paragraph}>{summary}</p>
       </div>
 
       <div style={section}>
@@ -48,21 +79,29 @@ export default function JobDetailsPage() {
       </div>
 
       <div style={section}>
+
         <h3>Skills</h3>
 
         <div style={skillsStyle}>
-          {skills.map((skill: string) => (
+          {skills.map((skill:string) => (
             <span key={skill} style={skillBadge}>
               {skill}
             </span>
           ))}
         </div>
+
       </div>
 
       <div style={stats}>
+
         <div style={statCard}>
           <strong>{applicants}</strong>
           <span>Applicants</span>
+        </div>
+
+        <div style={statCard}>
+          <strong>{score}%</strong>
+          <span>Match Score</span>
         </div>
 
         <div style={statCard}>
@@ -73,21 +112,32 @@ export default function JobDetailsPage() {
           </strong>
           <span>Salary</span>
         </div>
+
       </div>
+
     </div>
-  );
+  )
 }
 
-/* styles (دست نخورده) */
-const header = { display: "flex", justifyContent: "space-between", marginBottom: 30 };
-const title = { fontSize: 32, fontWeight: 700 };
-const location = { color: "#6b7280", marginTop: 6 };
-const badge = { background: "#dcfce7", color: "#166534", padding: "8px 14px", borderRadius: 999 };
-const section = { marginBottom: 30 };
-const paragraph = { lineHeight: 1.8, color: "#374151" };
-const skillsStyle = { display: "flex", gap: 10, flexWrap: "wrap" as const };
-const skillBadge = { background: "#eff6ff", color: "#1d4ed8", padding: "8px 12px", borderRadius: 999 };
-const stats = { display: "flex", gap: 20 };
+const header = { display: "flex", justifyContent: "space-between", marginBottom: 30 }
+const title = { fontSize: 32, fontWeight: 700 }
+const location = { color: "#6b7280", marginTop: 6 }
+const badge = { background: "#dcfce7", color: "#166534", padding: "8px 14px", borderRadius: 999 }
+
+const section = { marginBottom: 30 }
+const paragraph = { lineHeight: 1.8, color: "#374151" }
+
+const skillsStyle = { display: "flex", gap: 10, flexWrap: "wrap" as const }
+
+const skillBadge = {
+  background: "#eff6ff",
+  color: "#1d4ed8",
+  padding: "8px 12px",
+  borderRadius: 999
+}
+
+const stats = { display: "flex", gap: 20 }
+
 const statCard = {
   background: "#fff",
   border: "1px solid #e5e7eb",
@@ -97,4 +147,4 @@ const statCard = {
   display: "flex",
   flexDirection: "column" as const,
   gap: 8,
-};
+}

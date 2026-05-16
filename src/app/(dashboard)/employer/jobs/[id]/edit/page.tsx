@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getJob, updateJob } from "@/lib/mockJobs";
+import type { Job } from "@/lib/types/job.types"
 
 export default function EditJobPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -14,7 +15,8 @@ useEffect(() => {
   if (!job) return;
 
     setTitle(job.title);
-    setLocation(job.location);
+    setLocation(job.location ?? "");
+
   }, [params.id]);
 
   function handleSubmit(e: React.FormEvent) {

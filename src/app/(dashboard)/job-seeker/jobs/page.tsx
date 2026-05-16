@@ -4,7 +4,9 @@
 
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader"
 import { useEffect, useState } from "react"
-import { getJobs, seedMockJobs, updateJob, type Job } from "@/lib/mockJobs"
+import { getJobs, seedMockJobs, updateJob } from "@/lib/mockJobs"
+import type { Job } from "@/lib/types/job.types"
+
 import styles from "./jobs.module.css"
 
 const USER_EMAIL = "user@example.com"
@@ -16,7 +18,7 @@ export default function JobsPage() {
 
   function loadJobs(){
     const data = getJobs()
-    const active = data.filter(j => j.status === "active")
+    const active = data.filter(j => j.status === "open")
     setJobs(active)
   }
 
@@ -33,7 +35,8 @@ export default function JobsPage() {
 
     if(!job) return
 
-    const alreadyApplied = job.applications.some(
+    const alreadyApplied = job.applications?.some(
+
       a => a.email === USER_EMAIL
     )
 
@@ -51,7 +54,7 @@ export default function JobsPage() {
     }
 
     updateJob(jobId,{
-      applications:[...job.applications,newApplicant]
+      applications:[...(job.applications ?? []), newApplicant]
     })
 
     loadJobs()
@@ -83,7 +86,7 @@ export default function JobsPage() {
 
         {filteredJobs.map(job=>{
 
-          const applied = job.applications.some(
+          const applied = job.applications?.some(
             a => a.email === USER_EMAIL
           )
 
