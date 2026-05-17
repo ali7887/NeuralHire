@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import "dotenv/config"
+
 import { semanticJobSearch } from "../src/lib/ai/search"
 
 async function run() {

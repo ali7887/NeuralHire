@@ -14,8 +14,7 @@ export function getRedirectPathByRole(role: string) {
       return "/employer";
 
     case "job-seeker":
-    
-      return "/jobs";
+      return "/job-seeker";
 
     default:
       return "/";

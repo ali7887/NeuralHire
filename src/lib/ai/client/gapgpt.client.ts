@@ -17,10 +17,11 @@ export function getGapGPTClient() {
 
   const chatUrl = `${apiUrl}/chat/completions`;
   const embeddingsUrl = `${apiUrl}/embeddings`;
+  console.log("API KEY:", process.env.GAPGPT_API_KEY)
 
   return {
     model,
-
+    
     async chat(messages: any[]) {
       const response = await fetch(chatUrl, {
         method: "POST",

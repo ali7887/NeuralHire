@@ -10,23 +10,26 @@ import type { Job } from "@/lib/types/job.types"
 
 export default function JobsPage(){
 
-  function calculateMatch(jobSkills:string[]){
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function calculateMatch(jobSkills: string[]) {
+  const resumeSkillsRaw = localStorage.getItem("resumeSkills");
+  if (!resumeSkillsRaw) return null;
 
-const resumeSkillsRaw=localStorage.getItem("resumeSkills")
+  const resumeSkills: string[] = JSON.parse(resumeSkillsRaw);
 
-if(!resumeSkillsRaw) return null
+  const resumeSet = new Set(
+    resumeSkills.map((s) => s.toLowerCase())
+  );
 
-const resumeSkills:string[]=JSON.parse(resumeSkillsRaw)
+  const matchedCount = jobSkills.filter((skill) =>
+    resumeSet.has(skill.toLowerCase())
+  ).length;
 
-const matched=jobSkills.filter(skill=>
-resumeSkills
-.map(s=>s.toLowerCase())
-.includes(skill.toLowerCase())
-)
-
-return Math.round((matched.length/jobSkills.length)*100)
-
+  return jobSkills.length === 0
+    ? null
+    : Math.round((matchedCount / jobSkills.length) * 100);
 }
+
 
 const [jobs,setJobs]=useState<Job[]>([])
 

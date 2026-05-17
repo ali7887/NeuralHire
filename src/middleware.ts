@@ -26,10 +26,11 @@ const ACCESS_RULES = [
     redirectTo: "/login",
   },
   {
-    matcher: /^\/dashboard(\/.*)?$/,
+    matcher: /^\/job-seeker(\/.*)?$/,
     allowedRoles: ["job-seeker"] as Role[],
     redirectTo: "/login",
   },
+
 ];
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);

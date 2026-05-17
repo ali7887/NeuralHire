@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+
 import "dotenv/config";
 import { recommendJobsForCandidate } from "../src/lib/ai/features/jobRecommendations";
 
@@ -28,10 +29,26 @@ Familiar with Node.js and PostgreSQL.
     },
   ];
 
-  const recommendations = await recommendJobsForCandidate(resume, jobs);
+  try {
+    const recommendations = await recommendJobsForCandidate(resume, jobs);
 
-  console.log("Recommended Jobs:");
-  console.log(JSON.stringify(recommendations, null, 2));
+    console.log("\nAI Job Recommendations:\n");
+
+    if (!recommendations || recommendations.length === 0) {
+      console.log("No recommendations returned.");
+      return;
+    }
+
+    for (const job of recommendations) {
+      console.log(`Job: ${job.title}`);
+      console.log(`ID: ${job.id}`);
+      console.log(`Match Score: ${job.score}`);
+      console.log("-----");
+    }
+  } catch (error) {
+    console.error("Recommendation test failed:");
+    console.error(error);
+  }
 }
 
 run();

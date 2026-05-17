@@ -1,137 +1,73 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 
 import { useEffect, useState } from "react"
-import { getJob, updateJob } from "@/lib/mockJobs"
+import { useParams } from "next/navigation"
+import { getJob } from "@/lib/mockJobs"
 import type { Job } from "@/lib/types/job.types"
 
-import { useParams } from "next/navigation"
+import AIJobSummaryCard from "@/components/ai/AIJobSummaryCard"
+import AIJobMatchCard from "@/components/ai/AIJobMatchCard"
 
-const USER_EMAIL="user@example.com"
+export default function JobDetailsPage() {
+  const params = useParams()
+  const id = params?.id as string | undefined
 
-export default function JobDetailsPage(){
+  const [job, setJob] = useState<Job | null>(null)
 
-const params=useParams()
-const id=params.id as string
+  useEffect(() => {
+    if (!id) return
 
-const [job,setJob]=useState<Job|null>(null)
-function calculateMatch(jobSkills:string[]){
+    const j = getJob(id)
 
-const resumeSkillsRaw=localStorage.getItem("resumeSkills")
+    if (!j) {
+      console.error("Job not found:", id)
+      return
+    }
 
-if(!resumeSkillsRaw) return null
+    setJob(j)
+  }, [id])
 
-const resumeSkills:string[]=JSON.parse(resumeSkillsRaw)
+  if (!job) {
+    return <div style={{ padding: 40 }}>Loading job...</div>
+  }
 
-const matched=jobSkills.filter(skill=>
-resumeSkills
-.map(s=>s.toLowerCase())
-.includes(skill.toLowerCase())
-)
+  const skills = job.skills ?? []
 
-return Math.round((matched.length/jobSkills.length)*100)
+  return (
+    <div style={{ padding: 40, maxWidth: 900, margin: "0 auto" }}>
+      <h1>{job.title}</h1>
 
-}
+      <p>
+        <b>Company:</b> {job.companyId}
+      </p>
 
-function loadJob(){
+      <p>
+        <b>Location:</b> {job.location}
+      </p>
 
-const data=getJob(id)
+      {job.salary != null && (
+        <p>
+          <b>Salary:</b> ${job.salary}
+        </p>
+      )}
 
-if(data){
-setJob(data)
-}
+      <p style={{ marginTop: 20 }}>{job.description}</p>
 
-}
+      {skills.length > 0 && (
+        <p style={{ marginTop: 10 }}>
+          <b>Skills:</b> {skills.join(", ")}
+        </p>
+      )}
 
-useEffect(()=>{
+      <div style={{ marginTop: 40 }}>
+        <AIJobSummaryCard jobId={job.id} />
+      </div>
 
-loadJob()
-
-},[id])
-
-function apply(){
-
-if(!job) return
-
-const alreadyApplied=job.applications?.some(
-
-a=>a.email===USER_EMAIL
-)
-
-if(alreadyApplied){
-alert("You already applied")
-return
-}
-
-const newApplicant={
-id:crypto.randomUUID(),
-name:"Demo User",
-email:USER_EMAIL,
-resume:"#",
-status:"pending" as const
-}
-
-
-updateJob(job.id,{
-  applications:[...(job.applications ?? []), newApplicant]
-})
-
-alert("Application submitted")
-
-loadJob()
-
-}
-
-if(!job){
-
-return <div style={{padding:40}}>Job not found</div>
-
-}
-
-const applied = job.applications?.some(
-  a => a.email === USER_EMAIL
-) ?? false
-
-return(
-
-<div style={{padding:40}}>
-
-<h1>{job.title}</h1>
-
-<p>
-<b>Location:</b> {job.location}
-</p>
-
-{job.salary && (
-<p>
-<b>Salary:</b> ${job.salary}
-</p>
-)}
-
-<p>{job.description}</p>
-
-{job.skills && (
-<p>
-<b>Skills:</b> {job.skills.join(", ")}
-</p>
-)}
-
-<br/>
-
-<button
-onClick={apply}
-disabled={applied}
->
-
-{applied ? "Already Applied ✅" : "Apply for this job"}
-
-</button>
-
-</div>
-
-)
-
+      <div style={{ marginTop: 40 }}>
+        <AIJobMatchCard jobId={job.id} />
+      </div>
+    </div>
+  )
 }
