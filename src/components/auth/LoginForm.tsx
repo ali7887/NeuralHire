@@ -8,11 +8,7 @@ import { Input } from "@/components/ui/Input/Input/input";
 import Button from "@/components/ui/Button";
 import { getRedirectPathByRole } from "@/lib/auth/redirect";
 
-type Role =
-  | "admin"
-  | "employer"
-  | "job-seeker"
-  
+type Role = "admin" | "employer" | "job-seeker";
 
 type LoginOk = {
   user: {
@@ -28,9 +24,7 @@ type LoginErr = {
 };
 
 function isLoginOk(data: unknown): data is LoginOk {
-  if (!data || typeof data !== "object") {
-    return false;
-  }
+  if (!data || typeof data !== "object") return false;
 
   const user = (data as any).user;
 
@@ -56,7 +50,6 @@ export default function LoginForm() {
 
   function validateEmail(value: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     return emailRegex.test(value);
   }
 
@@ -104,34 +97,28 @@ export default function LoginForm() {
 
       if (!res.ok) {
         const err = data as LoginErr;
-
         setFormError(err.error || "Login failed.");
+        return;
+      }
 
+      if (!isLoginOk(data)) {
+        setFormError("Invalid server response.");
         return;
       }
 
       console.log("LOGIN_RESPONSE", data);
-
-
-      if (!isLoginOk(data)) {
-        setFormError("Invalid server response.");
-
-        return;
-      }
-
       console.log("USER_ROLE", data.user.role);
-      console.log("LOGIN ROLE:", data.user.role);
 
-      const redirectPath = getRedirectPathByRole(
-        data.user.role
-      );
+      const redirectPath = getRedirectPathByRole(data.user.role);
+
+      // ذخیره role برای استفاده در UI
+      localStorage.setItem("userRole", data.user.role);
 
       router.push(redirectPath);
-
       router.refresh();
+
     } catch (err) {
       console.error("[LOGIN_ERROR]", err);
-
       setFormError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -190,25 +177,20 @@ export default function LoginForm() {
                 setRememberMe(e.target.checked)
               }
             />
-
             <span>Remember me</span>
           </label>
 
           <button
             type="button"
             className={styles.forgotPassword}
-            onClick={() =>
-              router.push("/forgot-password")
-            }
+            onClick={() => router.push("/forgot-password")}
           >
             Forgot password?
           </button>
         </div>
 
         {formError && (
-          <p
-            className={`${styles.formError} ${styles.formErrorVisible}`}
-          >
+          <p className={`${styles.formError} ${styles.formErrorVisible}`}>
             {formError}
           </p>
         )}

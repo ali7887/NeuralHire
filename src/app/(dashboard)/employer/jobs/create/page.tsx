@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button/Button";
@@ -10,13 +10,13 @@ import { createJob } from "@/lib/mockJobs";
 export default function CreateJobPage() {
   const router = useRouter();
 
-  useEffect(() => {
-    const role = localStorage.getItem("userRole");
+  // useEffect(() => {
+  //   const role = localStorage.getItem("userRole");
 
-    if (role !== "employer") {
-      router.push("/post-job");
-    }
-  }, [router]);
+  //   if (role !== "employer") {
+  //     router.push("/post-job");
+  //   }
+  // }, [router]);
 
   const [form, setForm] = useState({
     title: "",
