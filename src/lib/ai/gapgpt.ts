@@ -1,27 +1,38 @@
-import { HttpsProxyAgent } from 'https-proxy-agent';
+/* eslint-disable no-undef */
+const API_URL = process.env.GAPGPT_API_URL
+const API_KEY = process.env.GAPGPT_API_KEY
 
-// آدرس پروکسی خودت را اینجا بگذار (مثلاً اگر VPN روشن است و روی پورت 7890 است)
-const PROXY = 'http://127.0.0.1:10808'; 
-const agent = new HttpsProxyAgent(PROXY);
+if (!API_URL) {
+  throw new Error("Missing GAPGPT_API_URL")
+}
+
+if (!API_KEY) {
+  throw new Error("Missing GAPGPT_API_KEY")
+}
 
 export async function gapgptChat(messages: any[]) {
-  const response = await fetch(`${process.env.GAPGPT_API_URL}/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GAPGPT_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: process.env.GAPGPT_MODEL,
-      messages,
-    }),
-    // @ts-ignore
-    agent: agent, // این خط کل ترافیک را از پروکسی عبور می‌دهد
-  });
 
-  if (!response.ok) {
-    throw new Error(`GapGPT API error: ${response.statusText}`);
+  const res = await fetch(`${API_URL}/chat/completions`, {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_KEY}`
+    },
+
+    body: JSON.stringify({
+      model: process.env.GAPGPT_MODEL ?? "gapgpt-qwen-3.6",
+      messages
+    })
+
+  })
+
+  if (!res.ok) {
+    throw new Error(`GapGPT error: ${res.status}`)
   }
-  
-  return response.json();
+
+  const data = await res.json()
+
+  return data.choices?.[0]?.message?.content
 }

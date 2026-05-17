@@ -52,7 +52,7 @@ export function getJob(id: string): Job | undefined {
 export function createJob(
   data: Omit<
     Job,
-    "id" | "createdAt" | "updatedAt" | "applications" | "applicants"
+    "id" | "createdAt" | "updatedAt" | "applications" | "applicants" | "embedding"
   >
 ): Job {
 
@@ -63,6 +63,8 @@ export function createJob(
     ...data,
 
     id: crypto.randomUUID(),
+
+    embedding: null,
 
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -214,6 +216,8 @@ export function seedMockJobs() {
 
       isRemote: true,
 
+      embedding: null,
+
       status: "open",
 
       createdAt: new Date(),
@@ -226,11 +230,9 @@ export function seedMockJobs() {
       applications: []
     }
 
-
   ]
 
   writeStorage(demo)
-
 }
 
 /* =====================================================
@@ -246,7 +248,6 @@ export function getDashboardStats() {
   const activeJobs = jobs.filter(
     (j) => j.status === "open"
   ).length
-
 
   const draftJobs = jobs.filter(
     (j) => j.status === "draft"

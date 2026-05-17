@@ -16,10 +16,7 @@ export async function getEmbedding(text: string): Promise<number[]> {
 
   const client = getGapGPTClient();
 
-  const response = await client.embeddings.create({
-    model: EMBEDDING_MODEL,
-    input: clean,
-  });
+  const response = await client.embeddings.create(clean);
 
   const embedding = response.data[0].embedding;
 

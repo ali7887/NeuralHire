@@ -1,10 +1,12 @@
 /* eslint-disable no-undef */
+
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getEmbedding, cosineSimilarity } from "@/app/api/ai/embeddings";
 import { db } from "@/lib/db";
 import { jobs } from "@/lib/db/schema";
 import { getCache, setCache } from "@/lib/ai/cache/aiCache";
+import { generateJobEmbedding } from "@/lib/ai/generateJobEmbedding";
+import { cosineSimilarity } from "@/app/api/ai/embeddings";
 
 const schema = z.object({
   query: z.string().min(1),
@@ -13,8 +15,10 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const json = await req.json();
-    const parsed = schema.safeParse(json);
+
+    const body = await req.json();
+
+    const parsed = schema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -25,40 +29,73 @@ export async function POST(req: NextRequest) {
 
     const { query, topK } = parsed.data;
 
-    const cacheKey = `search:${query}`;
+    const cacheKey = `ai-search:${query}:${topK}`;
 
     const cached = getCache(cacheKey);
+
     if (cached) {
-      return NextResponse.json({ data: cached, cached: true });
+      return NextResponse.json({
+        data: cached,
+        cached: true,
+      });
     }
 
-    const queryEmbedding = await getEmbedding(query);
+    /**
+     * 1️⃣ Generate query embedding
+     */
+
+    const queryEmbedding = await generateJobEmbedding(query);
+
+    /**
+     * 2️⃣ Fetch jobs with stored embeddings
+     */
 
     const jobRows = await db.select().from(jobs);
 
-    const scored = await Promise.all(
-      jobRows.map(async (job) => {
-        const text = `${job.title ?? ""} ${job.description ?? ""}`;
+    const results: any[] = [];
 
-        const embedding = await getEmbedding(text);
+    for (const job of jobRows) {
 
-        const similarity = cosineSimilarity(queryEmbedding, embedding);
+      if (!job.embedding) continue;
 
-        return {
-          job,
-          score: Math.round(similarity * 100),
-        };
-      })
-    );
+      const similarity = cosineSimilarity(
+        queryEmbedding,
+        job.embedding as number[]
+      );
 
-    const results = scored.sort((a, b) => b.score - a.score).slice(0, topK);
 
-    setCache(cacheKey, results, 1000 * 60 * 5);
+      results.push({
+        job,
+        score: Math.round(similarity * 100),
+      });
+    }
 
-    return NextResponse.json({ data: results });
+    /**
+     * 3️⃣ Ranking
+     */
+
+    const ranked = results
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topK);
+
+    /**
+     * 4️⃣ Cache
+     */
+
+    setCache(cacheKey, ranked, 1000 * 60 * 5);
+
+    return NextResponse.json({
+      data: ranked,
+      cached: false,
+    });
+
   } catch (error) {
+
     console.error("AI search error:", error);
 
-    return NextResponse.json({ error: "Search failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Search failed" },
+      { status: 500 }
+    );
   }
 }

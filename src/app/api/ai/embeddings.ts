@@ -9,10 +9,7 @@ export async function getEmbedding(text: string): Promise<number[]> {
   
   if (!cleanText) return [];
 
-  const response = await client.embeddings.create({
-    model: "text-embedding-3-small",
-    input: cleanText,
-  });
+const response = await client.embeddings.create(cleanText);
 
   return response.data[0].embedding;
 }

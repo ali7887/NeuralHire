@@ -1,0 +1,1 @@
+ALTER TABLE "jobs" ALTER COLUMN "embedding" SET DEFAULT 'null'::jsonb;

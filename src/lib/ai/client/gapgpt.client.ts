@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 export function getGapGPTClient() {
   const apiUrl = process.env.GAPGPT_API_URL;
   const apiKey = process.env.GAPGPT_API_KEY;
@@ -12,13 +15,14 @@ export function getGapGPTClient() {
     throw new Error("Missing GAPGPT_API_KEY");
   }
 
+  const chatUrl = `${apiUrl}/chat/completions`;
+  const embeddingsUrl = `${apiUrl}/embeddings`;
+
   return {
-    apiUrl,
-    apiKey,
     model,
 
     async chat(messages: any[]) {
-      const response = await fetch(`${apiUrl}/v1/chat/completions`, {
+      const response = await fetch(chatUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,18 +39,22 @@ export function getGapGPTClient() {
         throw new Error(`Chat API error: ${text}`);
       }
 
-      return response.json();
+      const json = await response.json();
+      return json;
     },
 
     embeddings: {
-      async create(payload: any) {
-        const response = await fetch(`${apiUrl}/v1/embeddings`, {
+      async create(input: string) {
+        const response = await fetch(embeddingsUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input,
+          }),
         });
 
         if (!response.ok) {

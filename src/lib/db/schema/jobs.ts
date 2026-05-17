@@ -8,6 +8,7 @@ import {
   timestamp,
   pgEnum,
   index,
+  jsonb
 } from "drizzle-orm/pg-core";
 
 import { companies } from "./companies";
@@ -53,7 +54,12 @@ export const jobs = pgTable(
 
     type: varchar("type", { length: 50 }),
 
-    level: jobLevelEnum("level"), // ✅ اینجا درست است
+    level: jobLevelEnum("level"),
+
+    embedding: jsonb("embedding")
+  .$type<number[] | null>()
+  .default(null),
+
 
     companyId: uuid("company_id").references(() => companies.id),
 
@@ -85,5 +91,6 @@ export const jobs = pgTable(
 
 export type Job = typeof jobs.$inferSelect;
 export type NewJob = typeof jobs.$inferInsert;
+
 export type JobStatus =
   (typeof jobStatusEnum.enumValues)[number];
