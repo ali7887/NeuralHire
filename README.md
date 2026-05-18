@@ -1,185 +1,160 @@
-AI Job/Recruitment Board SaaS
-A production-ready, AI-powered job board platform built with modern web technologies
+🧠 EuroJobs — AI‑Powered Job Board & Recruitment SaaS
+EuroJobs is a production‑ready, full‑stack recruitment platform that combines modern SaaS architecture with AI‑powered features for both employers and job seekers.
 
+Built with Next.js 15, TypeScript, PostgreSQL, and OpenAI, the platform demonstrates secure authentication, role‑based access control, scalable architecture, and intelligent automation for the hiring process.
 
+🚀 Tech Overview
+Framework
+Next.js 15 (App Router), React, Server Components, Server Actions
 
-A full-stack SaaS application demonstrating enterprise-grade architecture with authentication, role-based access control, admin dashboard, and AI-powered job matching capabilities.
+Database
+PostgreSQL with Drizzle ORM (type‑safe queries)
 
-✨ Features
-🔐 Authentication & Security
-JWT-based authentication with secure HTTP-only cookies
-Refresh token rotation for enhanced security
-Role-Based Access Control (RBAC) for user and admin roles
-Rate limiting on authentication endpoints
-Middleware-protected routes for admin access
-👥 User Management
-User registration and secure login/logout
-Persistent session management
-Multi-role support (User/Admin)
-💼 Job Board Core
-Post and browse job listings
-One-click job applications
-Company profile pages
-Job categorization and filtering
-🎛️ Admin Dashboard
-Protected admin panel
-Platform monitoring and analytics
-User and job management
-🤖 AI-Powered Features
-AI-generated job descriptions using OpenAI
-Semantic job search for better matching
-Intelligent candidate-job matching
+Security
+JWT Authentication (jose)
+HTTP‑only cookies
+Refresh token rotation
+Middleware‑based RBAC
+AI Engine
+OpenAI GPT‑4o for content generation and semantic job matching
+
+Architecture
+Feature‑driven modular architecture with clear separation of concerns
+
+🤖 AI‑Powered Features
+EuroJobs integrates AI directly into the recruitment workflow to improve efficiency and decision making.
+
+For Employers
+AI Job Description Generator
+Generates structured, industry‑standard job descriptions from a job title and key responsibilities.
+
+Benefits
+
+Saves time creating job postings
+Produces consistent and professional descriptions
+Reduces recruitment preparation time
+AI Job Summary Card
+Provides context‑aware summaries and insights for posted jobs within the employer dashboard.
+
+For Job Seekers
+AI Job Match Score
+A semantic matching system that evaluates how well a candidate’s profile aligns with job requirements.
+
+Highlights
+
+Intelligent similarity scoring
+Dynamic comparison between candidate profiles and job data
+Optimized API contracts and robust error handling
+AI Recommended Jobs
+A personalized job feed generated from user profiles and preferences using AI‑assisted matching.
+
+🔐 Security & Architecture
+Authentication
+JWT‑based authentication using jose
+Secure HTTP‑only cookies
+Refresh token rotation
+Authorization
+Role‑based access control (RBAC):
+
+Admin
+Employer
+Job Seeker
+Protected routes are enforced via Next.js middleware and server‑side verification.
+
+Validation
+Strict typing with TypeScript
+Database schema validation via Drizzle ORM
+Input validation and payload protection
+Admin Dashboard
+The platform includes an admin interface for:
+
+User management
+Company and job monitoring
+Platform oversight
 🛠️ Tech Stack
-Layer	Technologies
-Frontend	Next.js 15 (App Router), React, TypeScript, TailwindCSS
-Backend	Next.js API Routes, Drizzle ORM, PostgreSQL
-Authentication	JWT (jose), HTTP-only cookies, Refresh tokens
-AI	OpenAI API
+Frontend
+Next.js 15 • React • TypeScript • TailwindCSS • Lucide Icons
+
+Backend
+Next.js API Routes • Drizzle ORM • PostgreSQL
+
+Authentication
+JWT (jose) • HTTP‑Only Cookies
+
+AI Integration
+OpenAI GPT‑4o
+
 📁 Project Structure
-src/
-
-├── app/
-
-│ ├── api/
-
-│ │ ├── auth/ # Authentication endpoints
-
-│ │ ├── jobs/ # Job CRUD operations
-
-│ │ └── ai/ # AI-powered features
-
-│ ├── admin/
-
-│ │ └── dashboard/ # Admin panel
-
-│ └── (public)/ # Public pages
-
-├── db/
-
-│ ├── schema/ # Database schema definitions
-
-│ └── migrations/ # Database migrations
-
-├── modules/
-
-│ └── auth/ # Authentication logic
-
-├── lib/
-
-│ ├── security/ # Security utilities
-
-│ └── utils/ # Helper functions
-
-└── components/ # Reusable UI components
-
+text
+src
+│
+├── app
+│   ├── api            # API routes (auth, jobs, applications, AI)
+│   ├── (auth)         # Authentication pages
+│   ├── (dashboard)    # Protected dashboards
+│   └── admin          # Admin-only pages
+│
+├── components         # Reusable UI components
+│
+├── lib
+│   ├── db             # Database connection & schema
+│   ├── auth           # JWT utilities and auth helpers
+│   └── openai         # AI integration logic
+│
+└── middleware.ts      # Route protection and RBAC
 🚀 Getting Started
-Prerequisites
-Node.js 18+
-PostgreSQL database
-OpenAI API key
-Installation
-Clone the repository
+1. Clone the repository
 bash
-   git clone https://github.com/your-username/job-board-saas.git
-   cd job-board-saas
-Install dependencies
+git clone https://github.com/ali7887/EuroJobs.git
+cd EuroJobs
+2. Install dependencies
 bash
-   npm install
-Configure environment variables
-
-Create a .env.local file in the root directory:
+npm install
+3. Configure environment variables
+Create a .env.local file:
 
 env
-   DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
-   JWT_SECRET=your-secret-key-min-32-characters
-   OPENAI_API_KEY=sk-your-openai-key
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-Run database migrations
+DATABASE_URL=postgresql://...
+JWT_SECRET=your-secret-key
+OPENAI_API_KEY=sk-...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+4. Setup the database
 bash
-   npx drizzle-kit push
-Start the development server
+npx drizzle-kit push
+5. Run the development server
 bash
-   npm run dev
-Open your browser
+npm run dev
+Open:
 
-Navigate to http://localhost:3000
+text
+http://localhost:3000
+🎯 Core Features
+AI Job Description Generator
+AI Job Match Scoring
+AI Recommended Jobs Feed
+Secure JWT Authentication
+Refresh Token Rotation
+Role‑Based Access Control (Admin / Employer / Job Seeker)
+Employer Job Management Dashboard
+Job Seeker Application System
+Admin Management Panel
+Responsive UI with TailwindCSS
+📧 Contact
+Ali Kiani
 
-🔑 Admin Access
-Admin routes are protected via middleware and require a user with the admin role.
-
-Admin Dashboard: /admin/dashboard
-
-To create an admin user, manually update the user’s role in the database:
-
-
-
-
-UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
-
----
-
-## 🔒 Security Features
-
-- ✅ HTTP-only cookies for token storage
-- ✅ Automatic refresh token rotation
-- ✅ Role-based route protection
-- ✅ Rate limiting on sensitive endpoints
-- ✅ Middleware-based authentication guards
-- ✅ SQL injection prevention via Drizzle ORM
-- ✅ XSS protection through React's built-in escaping
-
----
-
-## 🎯 Project Goals
-
-This project was built as a **portfolio-grade SaaS application** to demonstrate:
-
-- Modern full-stack Next.js architecture
-- Secure authentication and authorization systems
-- Type-safe database operations with Drizzle ORM
-- RESTful API design patterns
-- Admin dashboard implementation
-- AI/ML integration in web applications
-- Production-ready code structure and best practices
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Resume parser with AI extraction
-- [ ] Advanced search filters (location, salary, remote)
-- [ ] Email notifications for job applications
-- [ ] Subscription plans with Stripe integration
-- [ ] Analytics dashboard for employers
-- [ ] Real-time chat between employers and candidates
-- [ ] Mobile app (React Native)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📧 Contact
+Email
 
 alikiani78@gmail.com
 
-Project Link: [https://github.com/ali7887/EuroJobs.git](https://github.com/ali7887/EuroJobs.git)
+GitHub
 
----
+https://github.com/ali7887
 
-<p alig with ❤️ using Next.js and TypeScript</p> TypeScript</p>
+LinkedIn
+
+(Add your LinkedIn profile if available)
+
+📄 License
+MIT License
+
+Built with Next.js, TypeScript, PostgreSQL, and OpenAI.

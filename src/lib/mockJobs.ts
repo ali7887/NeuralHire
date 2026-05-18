@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 /* eslint-disable no-undef */
 
 import type {
@@ -12,20 +13,9 @@ const STORAGE_KEY = "jobs"
    Safe LocalStorage
 ===================================================== */
 
-function readStorage(): Job[] {
 
-  if (typeof window === "undefined") return []
 
-  const raw = localStorage.getItem(STORAGE_KEY)
 
-  if (!raw) return []
-
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return []
-  }
-}
 
 function writeStorage(jobs: Job[]) {
 
@@ -262,5 +252,61 @@ export function getDashboardStats() {
     activeJobs,
     draftJobs,
     applications
+  }
+}
+
+// ۱. یک آرایه ثابت برای دیتای پیش‌فرض تعریف کن (دمو و سرور)
+const DEFAULT_JOBS: Job[] = [
+  {
+    id: "1",
+    title: "Frontend Developer",
+    description: "Build modern React and Next.js applications.",
+    location: "Remote",
+    salary: 5000,
+    type: "FULL_TIME",
+    level: "mid",
+    companyId: "demo-company",
+    employerId: "demo-employer",
+    isActive: true,
+    published: true,
+    isRemote: true,
+    embedding: null,
+    status: "open",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    skills: ["React", "Next.js", "TypeScript"],
+    applicants: 2,
+    applications: [
+        {
+            id: "app_1",
+            name: "Ali Developer",
+            email: "ali@example.com",
+            resume: "I am a senior react developer with 5 years of experience...",
+            status: "pending"
+        }
+    ]
+  }
+];
+
+function readStorage(): Job[] {
+  if (typeof window === "undefined") {
+    return DEFAULT_JOBS; 
+  }
+
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    // ۳. اگر در مرورگر بودیم ولی دیتایی نبود، دیتای پیش‌فرض رو برگردون
+    return DEFAULT_JOBS;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed.map((job: Job) => ({
+      ...job,
+      createdAt: job.createdAt ? new Date(job.createdAt) : new Date(),
+      updatedAt: job.updatedAt ? new Date(job.updatedAt) : new Date(),
+    }));
+  } catch {
+    return DEFAULT_JOBS;
   }
 }

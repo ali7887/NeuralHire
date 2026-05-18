@@ -62,7 +62,10 @@ export default function JobDetailsPage() {
       )}
 
       <div style={{ marginTop: 40 }}>
-        <AIJobSummaryCard jobId={job.id} />
+        <AIJobSummaryCard
+          jobId={job.id}
+          description={job.description}
+        />
       </div>
 
       <div style={{ marginTop: 40 }}>

@@ -38,7 +38,7 @@ export default function EditJobForm({ jobData, onSave }: Props) {
         title: title.trim(),
         description: description.trim(),
         location: location.trim(),
-        salary: salary.trim() === "" ? undefined : Number(salary),
+        salary: salary.trim() === "" ? null : Number(salary),
         skills: parsedSkills,
       };
 

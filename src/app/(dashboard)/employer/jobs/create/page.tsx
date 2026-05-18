@@ -6,17 +6,10 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button/Button";
 import { createJob } from "@/lib/mockJobs";
+import AIJobGenerator from "@/components/employer/ai/AIJobGenerator/AIJobGenerator";
 
 export default function CreateJobPage() {
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const role = localStorage.getItem("userRole");
-
-  //   if (role !== "employer") {
-  //     router.push("/post-job");
-  //   }
-  // }, [router]);
 
   const [form, setForm] = useState({
     title: "",
@@ -46,41 +39,24 @@ export default function CreateJobPage() {
       description: form.description,
       location: form.location,
       salary: form.salary ? Number(form.salary) : null,
-      skills: form.skills.split(",").map((s) => s.trim()),
-      isRemote: null,
-      type: null,
-      level: null,
-      companyId: null,
-      employerId: null,
-      isActive: null,
-      published: null,
-      status: "draft"
+      skills: form.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+
+      isRemote: false,
+      type: "full-time",
+      level: "mid",
+
+      companyId: "demo-company",
+      employerId: "demo-employer",
+
+      isActive: true,
+      published: true,
+      status: "open",
     });
 
     router.push("/employer/jobs");
-  };
-
-  const container: React.CSSProperties = {
-    maxWidth: 700,
-  };
-
-  const card: React.CSSProperties = {
-    background: "#fff",
-    borderRadius: 10,
-    padding: 24,
-    border: "1px solid #e5e7eb",
-  };
-
-  const title: React.CSSProperties = {
-    fontSize: 22,
-    fontWeight: 600,
-    marginBottom: 8,
-  };
-
-  const subtitle: React.CSSProperties = {
-    fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 20,
   };
 
   const textarea: React.CSSProperties = {
@@ -92,26 +68,17 @@ export default function CreateJobPage() {
     marginTop: 4,
   };
 
-  const field: React.CSSProperties = {
-    marginTop: 16,
-  };
-
-  const btn: React.CSSProperties = {
-    padding: "8px 14px",
-    borderRadius: 8,
-    background: "#2563eb",
-    color: "#fff",
-    fontSize: 13,
-    display: "inline-block",
-  };
-
   return (
-    <div style={container}>
-      <div style={card}>
-        <div style={title}>Create Job</div>
-        <div style={subtitle}>
-          Publish a new job listing for candidates
-        </div>
+    <div style={{ maxWidth: 700 }}>
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 10,
+          padding: 24,
+          border: "1px solid #e5e7eb",
+        }}
+      >
+        <h2>Create Job</h2>
 
         <Input
           label="Job Title"
@@ -120,13 +87,25 @@ export default function CreateJobPage() {
           onChange={handleChange}
         />
 
-        <div style={field}>
+        <AIJobGenerator
+          jobTitle={form.title}
+          companyName="Your Company"
+          location={form.location}
+          onGenerated={(text: string) =>
+            setForm((prev) => ({
+              ...prev,
+              description: text,
+            }))
+          }
+        />
+
+        <div style={{ marginTop: 16 }}>
           <label>Description</label>
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
-            rows={5}
+            rows={8}
             style={textarea}
           />
         </div>
@@ -153,10 +132,21 @@ export default function CreateJobPage() {
         />
 
         <div style={{ marginTop: 24 }}>
-          <Button onClick={submit} style={btn}>
+          <Button
+            onClick={submit}
+            style={{
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: 6,
+              cursor: "pointer"
+            }}
+          >
             Create Job
           </Button>
         </div>
+
       </div>
     </div>
   );

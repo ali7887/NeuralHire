@@ -1,71 +1,80 @@
 /* eslint-disable no-undef */
 import { NextResponse } from "next/server"
-import { getJob } from "@/lib/mockJobs"
-import { extractSkills } from "@/lib/nlp/extractSkills"
+// import { prisma } from "@/lib/prisma" // اگر Prisma داری
 
 export async function POST(req: Request) {
-
   try {
+    const body = await req.json()
+    const jobId = body?.jobId
+    const resumeText = body?.resumeText ?? ""
 
-    const bodyText = await req.text()
-
-    if (!bodyText) {
-      return NextResponse.json(
-        { error: "Empty request body" },
-        { status: 400 }
-      )
-    }
-
-    const { jobId, resumeText } = JSON.parse(bodyText)
-
-    if (!jobId) {
+    if (!jobId || typeof jobId !== "string") {
       return NextResponse.json(
         { error: "Missing jobId" },
         { status: 400 }
       )
     }
 
-    const job = getJob(jobId)
+    // ✅ اگر از DB واقعی استفاده می‌کنی
+    // const job = await prisma.job.findUnique({
+    //   where: { id: jobId }
+    // })
+
+    // ✅ اگر فعلاً mock داری
+    const jobs = [
+      {
+        id: "2890fc0d-853e-4a98-a984-7f5be040e207",
+        title: "Frontend Developer",
+        description: "React, Next.js, TypeScript"
+      }
+    ]
+
+    const job = jobs.find((j) => j.id === jobId)
 
     if (!job) {
       return NextResponse.json(
-        { error: "Job not found" },
+        { error: "Job not found", receivedJobId: jobId },
         { status: 404 }
       )
     }
 
-    const jobText =
-      (job.title || "") + " " + (job.description || "")
+    // نمونه match خیلی ساده
+    let score = 50
 
-    const jobSkills = extractSkills(jobText)
-    const resumeSkills = extractSkills(resumeText || "")
+    if (
+      resumeText.toLowerCase().includes("react") &&
+      job.description.toLowerCase().includes("react")
+    ) {
+      score += 20
+    }
 
-    const resumeSet = new Set(resumeSkills)
+    if (
+      resumeText.toLowerCase().includes("next") &&
+      job.description.toLowerCase().includes("next")
+    ) {
+      score += 15
+    }
 
-    const matched = jobSkills.filter(skill =>
-      resumeSet.has(skill)
-    )
-
-    const score =
-      jobSkills.length === 0
-        ? 0
-        : Math.round((matched.length / jobSkills.length) * 100)
+    if (
+      resumeText.toLowerCase().includes("typescript") &&
+      job.description.toLowerCase().includes("typescript")
+    ) {
+      score += 15
+    }
 
     return NextResponse.json({
-      score,
-      matchedSkills: matched,
-      jobSkills
+      score: Math.min(score, 100),
+      job: {
+        id: job.id,
+        title: job.title
+      }
     })
-
   } catch (error) {
-
-    console.error("Job match error:", error)
+    console.error("job-match route error:", error)
 
     return NextResponse.json(
-      { error: "Match failed" },
+      { error: "Internal server error" },
       { status: 500 }
     )
-
   }
-
 }

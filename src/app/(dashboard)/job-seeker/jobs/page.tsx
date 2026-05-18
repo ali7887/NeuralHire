@@ -7,40 +7,49 @@ import { useEffect, useState } from "react"
 import { getJobs, seedMockJobs, updateJob } from "@/lib/mockJobs"
 import type { Job } from "@/lib/types/job.types"
 
+import AIJobSummaryCard from "@/components/ai/AIJobSummaryCard"
+import AIJobMatchCard from "@/components/ai/AIJobMatchCard"
+
 import styles from "./jobs.module.css"
 
 const USER_EMAIL = "user@example.com"
 
 export default function JobsPage() {
 
-  const [jobs,setJobs] = useState<Job[]>([])
-  const [search,setSearch] = useState("")
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [search, setSearch] = useState("")
 
-  function loadJobs(){
+  function loadJobs() {
+
     const data = getJobs()
-    const active = data.filter(j => j.status === "open")
+
+    const active = data.filter(
+      j =>
+        j.status === "open" &&
+        j.published !== false &&
+        j.isActive !== false
+    )
+
     setJobs(active)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     seedMockJobs()
     loadJobs()
-  },[])
+  }, [])
 
-  function apply(jobId:string){
+  function apply(jobId: string) {
 
     const allJobs = getJobs()
-
     const job = allJobs.find(j => j.id === jobId)
 
-    if(!job) return
+    if (!job) return
 
     const alreadyApplied = job.applications?.some(
-
       a => a.email === USER_EMAIL
     )
 
-    if(alreadyApplied){
+    if (alreadyApplied) {
       alert("You already applied")
       return
     }
@@ -53,8 +62,8 @@ export default function JobsPage() {
       status: "pending" as const
     }
 
-    updateJob(jobId,{
-      applications:[...(job.applications ?? []), newApplicant]
+    updateJob(jobId, {
+      applications: [...(job.applications ?? []), newApplicant]
     })
 
     loadJobs()
@@ -64,9 +73,9 @@ export default function JobsPage() {
     job.title.toLowerCase().includes(search.toLowerCase())
   )
 
-  return(
+  return (
     <>
-      <JobSeekerHeader/>
+      <JobSeekerHeader />
 
       <div className={styles.container}>
 
@@ -75,22 +84,26 @@ export default function JobsPage() {
         <input
           placeholder="Search jobs..."
           value={search}
-          onChange={e=>setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           style={{
-            marginBottom:"20px",
-            padding:"10px",
-            width:"100%",
-            maxWidth:"400px"
+            marginBottom: "20px",
+            padding: "10px",
+            width: "100%",
+            maxWidth: "400px"
           }}
         />
 
-        {filteredJobs.map(job=>{
+        {filteredJobs.length === 0 && (
+          <p>No jobs available</p>
+        )}
+
+        {filteredJobs.map(job => {
 
           const applied = job.applications?.some(
             a => a.email === USER_EMAIL
           )
 
-          return(
+          return (
 
             <div key={job.id} className={styles.card}>
 
@@ -98,30 +111,37 @@ export default function JobsPage() {
 
               <p>{job.description}</p>
 
+              <p><b>Company:</b> {job.companyId}</p>
+
               <p><b>Location:</b> {job.location}</p>
 
-              {job.salary && (
-                <p><b>Salary:</b> ${job.salary}</p>
-              )}
+              {job.salary && <p><b>Salary:</b> ${job.salary}</p>}
 
               {job.skills && (
-                <p>
-                  <b>Skills:</b> {job.skills.join(", ")}
-                </p>
+                <p><b>Skills:</b> {job.skills.join(", ")}</p>
               )}
 
               <button
-                onClick={()=>apply(job.id)}
+                onClick={() => apply(job.id)}
                 disabled={applied}
               >
                 {applied ? "Applied ✅" : "Apply"}
               </button>
 
+              <br /><br />
+
+              {/* AI JOB SUMMARY */}
+              <AIJobSummaryCard jobId={job.id} description={job.description} />
+
+              <br />
+
+              {/* AI JOB MATCH */}
+              <AIJobMatchCard jobId={job.id} />
+
             </div>
 
           )
         })}
-
       </div>
     </>
   )

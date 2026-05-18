@@ -1,18 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable react-hooks/set-state-in-effect */
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { Job } from "@/lib/types/job.types"
-import { getJobs, deleteJob } from "@/lib/mockJobs"
-
-
+import type { Job } from "@/lib/types/job.types";
+import { getJobs, deleteJob } from "@/lib/mockJobs";
 
 export default function EmployerJobsPage() {
-  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
@@ -33,7 +30,9 @@ export default function EmployerJobsPage() {
         My Jobs
       </h1>
 
-      {jobs.length === 0 && <p>No jobs yet</p>}
+      {jobs.length === 0 && (
+        <p style={{ color: "#6b7280" }}>No jobs yet</p>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {jobs.map((job) => (
@@ -43,10 +42,16 @@ export default function EmployerJobsPage() {
               border: "1px solid #e5e7eb",
               padding: 16,
               borderRadius: 10,
+              background: "#fff",
             }}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 600 }}>{job.title}</h3>
-            <p style={{ color: "#6b7280", fontSize: 14 }}>{job.location}</p>
+            <h3 style={{ fontSize: 18, fontWeight: 600 }}>
+              {job.title}
+            </h3>
+
+            <p style={{ color: "#6b7280", fontSize: 14 }}>
+              {job.location ?? "Location not specified"}
+            </p>
 
             <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <Link href={`/employer/jobs/${job.id}`} style={btn}>
@@ -64,7 +69,10 @@ export default function EmployerJobsPage() {
                 Delete
               </button>
 
-              <Link href={`/employer/jobs/${job.id}/applicants`} style={btn}>
+              <Link
+                href={`/employer/jobs/${job.id}/applicants`}
+                style={btn}
+              >
                 Applicants ({job.applications?.length ?? 0})
               </Link>
             </div>
@@ -82,4 +90,5 @@ const btn: React.CSSProperties = {
   color: "#fff",
   fontSize: 13,
   display: "inline-block",
+  textDecoration: "none",
 };

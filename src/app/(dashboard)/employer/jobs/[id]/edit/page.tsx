@@ -1,57 +1,27 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+
 "use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
+import { useEffect, useState } from "react";
 import { getJob, updateJob } from "@/lib/mockJobs";
-import type { Job } from "@/lib/types/job.types"
+import type { Job } from "@/lib/types/job.types";
+import EditJobForm from "./EditJobForm";
 
 export default function EditJobPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
+  const [job, setJob] = useState<Job | null>(null);
 
-useEffect(() => {
-  const job = getJob(params.id);
-  if (!job) return;
-
-    setTitle(job.title);
-    setLocation(job.location ?? "");
-
+  useEffect(() => {
+    const found = getJob(params.id);
+    if (found) setJob(found);
   }, [params.id]);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    updateJob(params.id, {
-      title,
-      location,
-    });
-
-    router.push("/employer/jobs");
+  if (!job) {
+    return <p>Loading job...</p>;
   }
 
-  return (
-    <div style={{ maxWidth: 600 }}>
-      <h1>Edit Job</h1>
+  async function handleSave(updated: Partial<Job>) {
+    updateJob(params.id, updated);
+  }
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12 }}
-      >
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Job title"
-        />
-
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-        />
-
-        <button type="submit">Save</button>
-      </form>
-    </div>
-  );
+  return <EditJobForm jobData={job} onSave={handleSave} />;
 }

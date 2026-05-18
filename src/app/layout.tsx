@@ -1,7 +1,7 @@
+/* eslint-disable no-undef */
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-
 
 export const metadata: Metadata = {
   title: "Job Board SaaS - Find Your Dream Job in Europe",
@@ -16,7 +16,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        
         {children}
         <Toaster position="top-center" />
       </body>

@@ -9,7 +9,6 @@ import styles from './Header.module.css';
 import CommandPalette from '@/components/search/CommandPalette';
 
 export function Header() {
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isCmdOpen, setIsCmdOpen] = useState(false);
@@ -17,30 +16,21 @@ export function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-
     let ticking = false;
 
     const handleScroll = () => {
-
       if (!ticking) {
-
         window.requestAnimationFrame(() => {
-
           setScrolled(window.scrollY > 40);
-
           ticking = false;
         });
-
         ticking = true;
       }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-
         e.preventDefault();
-
         setIsCmdOpen(true);
       }
     };
@@ -49,19 +39,16 @@ export function Header() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
     };
-
   }, []);
 
   return (
     <>
       <header className={`${styles.header} ${scrolled ? styles.scrolled : styles.transparent}`}>
-
         <div className={styles.container}>
-
+          
           <Link href="/" className={styles.logo}>
             <div className={styles.logoMark}>E</div>
             <span>Euro<strong>Jobs</strong></span>
@@ -77,15 +64,39 @@ export function Header() {
           </div>
 
           <nav className={styles.nav}>
-            <Link href="/jobs" className={pathname === '/jobs' ? styles.activeLink : ''}>
+            {/* اضافه کردن target="_blank" برای باز شدن در تب جدید */}
+            <Link 
+              href="/jobs" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={pathname === '/jobs' ? styles.activeLink : ''}
+            >
               Find Jobs
             </Link>
 
-            <Link href="/companies">
+            <Link 
+              href="/companies" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
               Companies
             </Link>
-            <Link href="/about">About Us</Link>
-            <Link href="/contact">Contact</Link>
+
+            <Link 
+              href="/about" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              About Us
+            </Link>
+
+            <Link 
+              href="/contact" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Contact
+            </Link>
           </nav>
 
           <div className={styles.actions}>
@@ -99,9 +110,7 @@ export function Header() {
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-
         </div>
-
       </header>
 
       <CommandPalette isOpen={isCmdOpen} onClose={() => setIsCmdOpen(false)} />
