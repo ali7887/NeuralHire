@@ -146,13 +146,13 @@ Email
 
 alikiani78@gmail.com
 
-GitHub
+website
 
-https://github.com/ali7887
+https://alikiani.vercel.app/
 
 LinkedIn
 
-(Add your LinkedIn profile if available)
+https://www.linkedin.com/in/alikiani78/
 
 📄 License
 MIT License
