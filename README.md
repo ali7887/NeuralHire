@@ -1,5 +1,5 @@
-🧠 EuroJobs — AI‑Powered Job Board & Recruitment SaaS
-EuroJobs is a production‑ready, full‑stack recruitment platform that combines modern SaaS architecture with AI‑powered features for both employers and job seekers.
+🧠 NeuralHire — AI‑Powered Job Board & Recruitment SaaS
+NeuralHire is a production‑ready, full‑stack recruitment platform that combines modern SaaS architecture with AI‑powered features for both employers and job seekers.
 
 Built with Next.js 15, TypeScript, PostgreSQL, and OpenAI, the platform demonstrates secure authentication, role‑based access control, scalable architecture, and intelligent automation for the hiring process.
 
@@ -22,7 +22,7 @@ Architecture
 Feature‑driven modular architecture with clear separation of concerns
 
 🤖 AI‑Powered Features
-EuroJobs integrates AI directly into the recruitment workflow to improve efficiency and decision making.
+NeuralHire integrates AI directly into the recruitment workflow to improve efficiency and decision making.
 
 For Employers
 AI Job Description Generator
@@ -105,8 +105,8 @@ src
 🚀 Getting Started
 1. Clone the repository
 bash
-git clone https://github.com/ali7887/EuroJobs.git
-cd EuroJobs
+git clone https://github.com/ali7887/NeuralHire.git
+cd NeuralHire
 2. Install dependencies
 bash
 npm install
