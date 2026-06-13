@@ -1,25 +1,17 @@
+//D:\project\NEW\neuralhire\NeuralHire\src\components\admin\companies\CompanyFormModal.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui";
 import type { Company } from "@/lib/types/company.types";
 
-
 type CompanyForm = {
   name: string;
-  website?: string | null;
-  logoUrl?: string | null;
-  description?: string | null;
+  website: string;
+  logoUrl: string;
+  description: string;
   ownerId: string;
 };
-
-const [form, setForm] = useState<CompanyForm>({
-  name: "",
-  website: "",
-  logoUrl: "",
-  description: "",
-  ownerId: "system-admin",
-});
 
 type Props = {
   open: boolean;
@@ -29,59 +21,60 @@ type Props = {
   onSuccess: (company: Company) => void;
 };
 
-export default function CompanyFormModal({
-  open,
-  mode,
-  initialData,
-  onClose,
-  onSuccess,
-}: Props) {
-  const [form, setForm] = useState({
+type CompanyFormModalContentProps = {
+  mode: "create" | "edit";
+  initialData?: Company | null;
+  onClose: () => void;
+  onSuccess: (company: Company) => void;
+};
+
+function createEmptyCompanyForm(): CompanyForm {
+  return {
     name: "",
     website: "",
     logoUrl: "",
     description: "",
     ownerId: "system-admin",
-  });
+  };
+}
 
+function createCompanyFormFromInitialData(
+  mode: "create" | "edit",
+  initialData?: Company | null
+): CompanyForm {
+  if (mode === "edit" && initialData) {
+    return {
+      name: initialData.name ?? "",
+      website: initialData.website ?? "",
+      logoUrl: initialData.logoUrl ?? "",
+      description: initialData.description ?? "",
+      ownerId: initialData.ownerId ?? "system-admin",
+    };
+  }
+
+  return createEmptyCompanyForm();
+}
+
+function CompanyFormModalContent({
+  mode,
+  initialData,
+  onClose,
+  onSuccess,
+}: CompanyFormModalContentProps) {
+  const [form, setForm] = useState<CompanyForm>(() =>
+    createCompanyFormFromInitialData(mode, initialData)
+  );
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (mode === "edit" && initialData) {
-      setForm({
-        name: initialData.name || "",
-        website: initialData.website || "",
-        logoUrl: initialData.logoUrl || "",
-        description: initialData.description || "",
-        ownerId: initialData.ownerId,
-      });
-    } else {
-      setForm({
-        name: "",
-        website: "",
-        logoUrl: "",
-        description: "",
-        ownerId: "system-admin",
-      });
-    }
-  }, [mode, initialData, open]);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
 
-  if (!open) return null;
+  setLoading(true);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const url =
-        mode === "create"
-          ? "/api/admin/companies"
-          : `/api/admin/companies/${initialData?.id}`;
-
-      const method = mode === "create" ? "POST" : "PATCH";
-
-      const res = await fetch(url, {
-        method,
+  try {
+    if (mode === "create") {
+      const res = await fetch("/api/admin/companies", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -93,18 +86,53 @@ export default function CompanyFormModal({
         return;
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as Company;
+      onSuccess(data);
+    } else {
+      // ✅ TypeScript now knows we are in "edit" branch
+      if (!initialData?.id) {
+        alert("Company ID is missing");
+        return;
+      }
 
-      onSuccess(mode === "create" ? data : { ...initialData, ...form });
+      const res = await fetch(
+        `/api/admin/companies/${initialData.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
 
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("Network error");
-    } finally {
-      setLoading(false);
+      if (!res.ok) {
+        alert("Failed to save company");
+        return;
+      }
+
+      const updatedCompany: Company = {
+        id: initialData.id, // ✅ now 100% string
+        name: form.name,
+        website: form.website || null,
+        logoUrl: form.logoUrl || null,
+        description: form.description || null,
+        ownerId: form.ownerId,
+      };
+
+      onSuccess(updatedCompany);
     }
+
+    onClose();
+  } catch (err) {
+    console.error(err);
+    alert("Network error");
+  } finally {
+    setLoading(false);
   }
+}
+
+
 
   return (
     <div style={overlayStyle}>
@@ -118,7 +146,12 @@ export default function CompanyFormModal({
             style={inputStyle}
             placeholder="Company Name"
             value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            onChange={(e) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                name: e.target.value,
+              }))
+            }
             required
           />
 
@@ -126,21 +159,36 @@ export default function CompanyFormModal({
             style={inputStyle}
             placeholder="Website"
             value={form.website}
-            onChange={(e) => setForm({ ...form, website: e.target.value })}
+            onChange={(e) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                website: e.target.value,
+              }))
+            }
           />
 
           <input
             style={inputStyle}
             placeholder="Logo URL"
             value={form.logoUrl}
-            onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
+            onChange={(e) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                logoUrl: e.target.value,
+              }))
+            }
           />
 
           <textarea
             style={{ ...inputStyle, minHeight: 80 }}
             placeholder="Description"
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                description: e.target.value,
+              }))
+            }
           />
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
@@ -155,6 +203,26 @@ export default function CompanyFormModal({
         </form>
       </div>
     </div>
+  );
+}
+
+export default function CompanyFormModal({
+  open,
+  mode,
+  initialData,
+  onClose,
+  onSuccess,
+}: Props) {
+  if (!open) return null;
+
+  return (
+    <CompanyFormModalContent
+      key={`${mode}-${initialData?.id ?? "new"}`}
+      mode={mode}
+      initialData={initialData}
+      onClose={onClose}
+      onSuccess={onSuccess}
+    />
   );
 }
 

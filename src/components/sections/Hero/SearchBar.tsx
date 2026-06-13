@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, FormEvent } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import styles from './SearchBar.module.css';
+import { useState, useCallback, type FormEvent } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import styles from "./SearchBar.module.css";
 
 interface SearchParams {
   keyword: string;
@@ -15,16 +15,16 @@ interface SearchBarProps {
 }
 
 const JOB_CATEGORIES = [
-  { value: '', label: 'All Categories' },
-  { value: 'frontend', label: 'Frontend Development' },
-  { value: 'backend', label: 'Backend Development' },
-  { value: 'fullstack', label: 'Full Stack Development' },
-  { value: 'mobile', label: 'Mobile Development' },
-  { value: 'devops', label: 'DevOps & Infrastructure' },
-  { value: 'design', label: 'UI/UX Design' },
-  { value: 'data', label: 'Data Science & Analytics' },
-  { value: 'product', label: 'Product Management' },
-  { value: 'marketing', label: 'Marketing & Growth' },
+  { value: "", label: "All Categories" },
+  { value: "frontend", label: "Frontend Development" },
+  { value: "backend", label: "Backend Development" },
+  { value: "fullstack", label: "Full Stack Development" },
+  { value: "mobile", label: "Mobile Development" },
+  { value: "devops", label: "DevOps & Infrastructure" },
+  { value: "design", label: "UI/UX Design" },
+  { value: "data", label: "Data Science & Analytics" },
+  { value: "product", label: "Product Management" },
+  { value: "marketing", label: "Marketing & Growth" },
 ];
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
@@ -32,59 +32,58 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [keyword, setKeyword] = useState('');
-  const [location, setLocation] = useState('');
-  const [category, setCategory] = useState('');
+  const [keyword, setKeyword] = useState(
+    () => searchParams.get("keyword") || ""
+  );
 
-  useEffect(() => {
-    // این useEffect پارامترهای URL رو با state های داخلی همگام می‌کنه
-    // مهم اینه که searchParams یک شیء پویاست و وقتی URL تغییر میکنه، این useEffect اجرا میشه.
-    setKeyword(searchParams.get('keyword') || '');
-    setLocation(searchParams.get('location') || '');
-    setCategory(searchParams.get('category') || '');
-  }, [searchParams]); // Dependency array: وقتی searchParams تغییر کنه، این افکت دوباره اجرا میشه
-  
-  // ❌ تابع handleSearch حذف شده چون تکراری و دارای خطا بود
-  // const handleSearch = () => {
-  // const params = new URLSearchParams();
-  // if (query) params.set("search", query); // 'query' is not defined
-  // if (location) params.set("location", location);
-  // if (category) params.set("category", category);
-  // 
-  // router.push(`/jobs?${params.toString()}`);
-  // };
+  const [location, setLocation] = useState(
+    () => searchParams.get("location") || ""
+  );
+
+  const [category, setCategory] = useState(
+    () => searchParams.get("category") || ""
+  );
 
   const updateURL = useCallback(
     (params: SearchParams) => {
       const urlParams = new URLSearchParams();
 
-      if (params.keyword) urlParams.set('keyword', params.keyword);
-      if (params.location) urlParams.set('location', params.location);
-      if (params.category) urlParams.set('category', params.category);
+      if (params.keyword) urlParams.set("keyword", params.keyword);
+      if (params.location) urlParams.set("location", params.location);
+      if (params.category) urlParams.set("category", params.category);
 
       const query = urlParams.toString();
-      // ✅ این خط URL رو به درستی آپدیت می‌کنه
-      // اگر در صفحه /jobs باشی، میشه /jobs?keyword=...
-      // اگر query خالی باشه، میشه pathname (مثلاً /jobs)
+
       router.push(query ? `${pathname}?${query}` : pathname);
     },
-    [pathname, router] // Dependencies برای useCallback
+    [pathname, router]
   );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const params = { keyword, location, category };
-    updateURL(params); // ✅ استفاده از updateURL برای بروزرسانی URL
-    onSearch?.(params); // ✅ فراخوانی onSearch اگر تعریف شده باشد
+    const params: SearchParams = {
+      keyword,
+      location,
+      category,
+    };
+
+    updateURL(params);
+    onSearch?.(params);
   };
 
   return (
-    <form autoComplete="off" className={styles.searchBar} onSubmit={handleSubmit}>
+    <form
+      autoComplete="off"
+      className={styles.searchBar}
+      onSubmit={handleSubmit}
+    >
       <div className={styles.searchBar__container}>
-
         <div className={styles.searchBar__field}>
-          <label htmlFor="keyword" className={styles.searchBar__label}>Job Title or Keyword</label>
+          <label htmlFor="keyword" className={styles.searchBar__label}>
+            Job Title or Keyword
+          </label>
+
           <input
             id="keyword"
             placeholder="e.g. Frontend Developer"
@@ -97,7 +96,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         <div className={styles.searchBar__separator} />
 
         <div className={styles.searchBar__field}>
-          <label htmlFor="location" className={styles.searchBar__label}>Location</label>
+          <label htmlFor="location" className={styles.searchBar__label}>
+            Location
+          </label>
+
           <input
             id="location"
             placeholder="e.g. Berlin, Remote"
@@ -110,32 +112,44 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         <div className={styles.searchBar__separator} />
 
         <div className={styles.searchBar__field}>
-          <label htmlFor="category" className={styles.searchBar__label}>Category</label>
+          <label htmlFor="category" className={styles.searchBar__label}>
+            Category
+          </label>
+
           <select
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className={styles.searchBar__select}
           >
-            {JOB_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
+            {JOB_CATEGORIES.map((categoryItem) => (
+              <option key={categoryItem.value} value={categoryItem.value}>
+                {categoryItem.label}
+              </option>
             ))}
           </select>
         </div>
 
         <button className={styles.searchBar__button} type="submit">
           <span className={styles.searchBar__buttonText}>Search Jobs</span>
-          <svg className={styles.searchBar__buttonIcon} width="20" height="20" viewBox="0 0 20 20">
+
+          <svg
+            className={styles.searchBar__buttonIcon}
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            aria-hidden="true"
+          >
             <path
               d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              fill="none"
             />
           </svg>
         </button>
-
       </div>
     </form>
   );

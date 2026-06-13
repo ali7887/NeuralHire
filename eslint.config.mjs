@@ -33,6 +33,12 @@ export default [
         project: "./tsconfig.json",
       },
     },
+    globals: {
+  ...globals.browser,
+  ...globals.node,
+  ...globals.es2024,
+},
+
 
     plugins: {
       "@typescript-eslint": tsPlugin,
@@ -47,6 +53,9 @@ export default [
       ...reactPlugin.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
+      
+      "no-undef": "off",
+
 
       // practical rules
       "@typescript-eslint/no-unused-vars": "warn",

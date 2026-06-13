@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Button, Input } from "@/components/ui";
+import type { Company } from "@/lib/types/company.types";
 
 type CreateCompanyModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: (newCompany: any) => void;
+  onCreated: (newCompany: Company) => void;
   ownerId: string;
 };
 
@@ -16,14 +17,14 @@ export default function CreateCompanyModal({
   onCreated,
   ownerId,
 }: CreateCompanyModalProps) {
-  if (!isOpen) return null;
-
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   async function handleCreate() {
     setLoading(true);
@@ -33,20 +34,25 @@ export default function CreateCompanyModal({
       const res = await fetch("/api/admin/companies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, website, logoUrl, description, ownerId }),
+        body: JSON.stringify({
+          name,
+          website,
+          logoUrl,
+          description,
+          ownerId,
+        }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { error?: string };
         setError(data.error || "Failed to create company");
-        setLoading(false);
         return;
       }
 
-      const newCompany = await res.json();
+      const newCompany = (await res.json()) as Company;
       onCreated(newCompany);
       onClose();
-    } catch (err) {
+    } catch (_err) {
       setError("Network error");
     } finally {
       setLoading(false);
@@ -84,18 +90,21 @@ export default function CreateCompanyModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+
         <Input
           label="Website"
           type="url"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
         />
+
         <Input
           label="Logo URL"
           type="url"
           value={logoUrl}
           onChange={(e) => setLogoUrl(e.target.value)}
         />
+
         <Input
           label="Description"
           value={description}
@@ -104,12 +113,19 @@ export default function CreateCompanyModal({
 
         {error && <p style={{ color: "red", marginTop: 8 }}>{error}</p>}
 
-        <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+        <div
+          style={{
+            marginTop: 16,
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+          }}
+        >
           <Button disabled={loading} variant="secondary" onClick={onClose}>
             Cancel
           </Button>
 
-          <Button disabled={loading || !name} onClick={handleCreate}>
+          <Button disabled={loading || !name.trim()} onClick={handleCreate}>
             {loading ? "Creating..." : "Create"}
           </Button>
         </div>
