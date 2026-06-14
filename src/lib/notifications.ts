@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 export type Notification={
   id:number
   text:string

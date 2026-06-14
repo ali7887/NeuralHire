@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { getGapGPTClient } from "../client/gapgpt.client";
 import { jobSummaryPrompt } from "../prompts/summary.prompt";
 

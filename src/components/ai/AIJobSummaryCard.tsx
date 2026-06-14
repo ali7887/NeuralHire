@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-/* eslint-disable no-undef */
+ 
 "use client"
 
 import { useMemo, useState } from "react"

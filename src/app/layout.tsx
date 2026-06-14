@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";

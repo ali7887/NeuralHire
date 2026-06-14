@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import styles from "./layout.module.css";

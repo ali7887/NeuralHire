@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getEmbedding, cosineSimilarity } from "@/app/api/ai/embeddings";

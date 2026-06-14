@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { db } from "@/lib/db";

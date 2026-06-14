@@ -1,4 +1,4 @@
-﻿/* eslint-disable no-undef */
+﻿ 
 import Link from "next/link"
 import styles from "./job-card.module.css"
 import { JobCardDTO } from "@/types/job-card"

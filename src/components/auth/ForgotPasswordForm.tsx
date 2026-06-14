@@ -16,7 +16,7 @@ export default function ForgotPasswordForm() {
     setLoading(true);
 
     try {
-      // eslint-disable-next-line no-undef
+       
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -1,4 +1,4 @@
-/* eslint-disable no-useless-assignment */
+ 
 import { extractSkills } from "@/lib/nlp/extractSkills";
 import { getGapGPTClient } from "../client/gapgpt.client";
 import { resumeAnalysisPrompt } from "../prompts/resume.prompt";

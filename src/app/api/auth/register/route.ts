@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { NextResponse } from "next/server";
 
 import { authService } from "@/lib/services/auth.service";

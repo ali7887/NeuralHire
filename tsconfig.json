@@ -9,15 +9,12 @@
     ],
     "types": [
       "node",
-      "react"
+      "react",
+      "react-dom"
     ],
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "./src/types",
-      "./node_modules/@types"
-    ],
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,

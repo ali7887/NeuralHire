@@ -33,9 +33,37 @@ export default function CompaniesTable() {
     }
   }
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
+useEffect(() => {
+  const controller = new AbortController();
+
+  async function loadCompanies() {
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/admin/companies", {
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed fetching companies");
+      }
+
+      const data = await res.json();
+      setCompanies(data);
+    } catch (err) {
+      if ((err as Error).name !== "AbortError") {
+        console.error("Failed loading companies", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadCompanies();
+
+  return () => controller.abort();
+}, []);
+
 
   if (loading) return <Loader />;
 

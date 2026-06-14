@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { NextResponse } from "next/server";
 import { rankCandidates } from "@/lib/ai/features/candidateRanking";
 

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { NextResponse } from "next/server"
 import { summarizeJob } from "@/lib/ai/summarizeJob"
 import { summarizeJobAI } from "@/lib/ai/features/jobSummaryAI"

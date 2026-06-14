@@ -5,7 +5,7 @@ export function LogoutButton() {
   const router = useRouter();
 
   const logout = async () => {
-    // eslint-disable-next-line no-undef
+     
     await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",

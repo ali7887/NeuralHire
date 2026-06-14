@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { Header, Footer } from "@/components/layout";
 
 export default function MarketingLayout({
