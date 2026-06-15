@@ -1,4 +1,5 @@
  
+export const dynamic = "force-dynamic";
 import JobSeekerHeader from "@/components/job-seeker/JobSeekerHeader";
 
 export default function DashboardLayout({
