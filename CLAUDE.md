@@ -1,147 +1,225 @@
-@AGENTS.md
-NeuralHire – Claude Development Context
-Project
+# NeuralHire – Claude Development Context
 
-NeuralHire is an AI-powered recruitment SaaS platform built with Next.js and TypeScript.
+## Project Identity
+NeuralHire is an AI-powered recruitment SaaS platform.
 
-Canonical project name: NeuralHire
+Canonical project name:
+NeuralHire
 
-Previous names (ignore in code and docs):
+Legacy names (ignore everywhere):
+- Nexus
+- JobBoard
+- EuroJobs
 
-    Nexus
-    JobBoard
-    EuroJobs
+Always refer to the project as **NeuralHire**.
 
-Source of Truth
+---
 
-The actual repository code is the only reliable source.
+## Repository Source of Truth
+The actual repository code is the only reliable source of truth.
 
 Documentation may be outdated.
 
+Before implementing any feature always:
+1. Inspect relevant files
+2. Identify existing logic
+3. Extend existing modules instead of rewriting
+
+---
+
+## Critical Repository Constraint
+The repository contains or may contain duplicated folder trees.
+
+### Hard Rules
+- **Primary source tree:** `src/`
+- **Ignore tree:** `src/src/`
+- Never modify files inside `src/src/`
+- Never import from `src/src/`
+- Ignore `src/src/` when searching for code
+
+If both versions of a file exist, prefer the file inside `src/`.
+
+Example:
+- Correct: `src/app/api/jobs/route.ts`
+- Incorrect: `src/src/app/api/jobs/route.ts`
+
+---
+
+## Tech Stack
+- Next.js (App Router)
+- TypeScript
+- PostgreSQL
+- Drizzle ORM
+- Custom auth with JWT access tokens, refresh token rotation, HTTP-only cookies, RBAC
+- TailwindCSS
+- CSS Modules
+- Vitest
+- Playwright
+
+---
+
+## Architecture Overview
+NeuralHire follows a layered architecture.
+
+### UI Layer
+- `src/app`
+- `src/components`
+
+### API Layer
+- `src/app/api`
+
+### Business Logic
+- `src/lib/services`
+
+### Data Access
+- `src/lib/repositories`
+
+### Database Schema
+- `src/lib/db/schema`
+
+### Utilities
+- `src/lib/utils`
+
+---
+
+## Data Access Rules
+Database access must follow this flow:
+
+API Route → Service → Repository → Database
+
+### Example
+- API: `src/app/api/jobs/route.ts`
+- Service: `src/lib/services/job.service.ts`
+- Repository: `src/lib/repositories/job.repository.ts`
+
+Direct database access from API routes is forbidden.
+
+---
+
+## AI System
+AI functionality currently lives in multiple locations:
+
+### API Endpoints
+- `src/app/api/ai/`
+
+### AI Services
+- `src/lib/services/ai/`
+- `src/lib/services/search/`
+
+### AI Utilities
+- `src/lib/ai/`
+
+Existing features include:
+- job embeddings
+- hybrid search
+- matcher services
+- AI chat endpoint
+- prompt utilities
+
+---
+
+## Target AI Capabilities
+NeuralHire AI roadmap:
+
+1. Job Embedding Pipeline
+2. Resume Embedding Pipeline
+3. Vector Search
+4. Semantic Job Search
+5. Candidate ↔ Job Matching
+6. Resume Analysis
+7. Recruiter Insights
+8. AI Job Description Generator
+
+Primary files related to AI search:
+- `src/lib/services/search/hybrid-search.service.ts`
+- `src/lib/services/search/ai-search.service.ts`
+- `src/lib/services/ai/job-indexer.service.ts`
+
+---
+
+## Development Philosophy
+Prefer:
+- additive development
+- minimal invasive changes
+- isolated modules
+- incremental improvements
+
+Avoid:
+- rewriting working systems
+- restructuring directories
+- large refactors without approval
+
+---
+
+## Forbidden Changes
+Claude must NOT automatically:
+- change the tech stack
+- refactor authentication system
+- modify Drizzle schema without approval
+- restructure the repository
+- delete folders
+- rename core modules
+
+---
+
+## Workflow Rules
 Before implementing any feature:
 
-    Inspect the relevant files
-    Identify existing logic
-    Extend instead of rewriting
+### Step 1 — Audit
+Identify the relevant files.
 
-Core Tech Stack
+### Step 2 — Plan
+Provide a short implementation plan (max 3–5 steps).
 
-Framework: Next.js (App Router)
+### Step 3 — Wait
+Wait for confirmation before implementing.
 
-Language: TypeScript
+### Step 4 — Implement
+Implement only the requested change.
 
-Database: PostgreSQL
+Never implement multiple unrelated features at once.
 
-ORM: Drizzle ORM
+---
 
-Authentication:
+## SESSION RESUME
+Assume previous sessions have already:
+- fixed major bugs
+- completed debugging
+- achieved successful build
+- achieved successful Vercel deployment
 
-    Custom JWT
-    Refresh token rotation
-    HTTP-only cookies
-    RBAC
+Do not repeat repository-wide audits.
 
-Styling:
+Continue from `docs/PROJECT_STATE.md`.
 
-    TailwindCSS
-    CSS Modules
+---
 
-Testing:
+## READ LIMITS
+Maximum files to read initially:
+- `CLAUDE.md`
+- `docs/PROJECT_STATE.md`
+- `docs/CURRENT_PHASE.md`
+- Up to 5 task-specific files
 
-    Vitest
-    Playwright
+Do not read more unless necessary.
 
-Architecture Layers
+---
 
-app/api
+## Current Development Context
+Current project progress is tracked in:
+- `docs/PROJECT_STATE.md`
+- `docs/CURRENT_PHASE.md`
 
-HTTP route handlers
+Claude should read those files before making assumptions about project progress.
 
-lib/services
+---
 
-Business logic
+## Communication Style
+Responses should be:
+- technical
+- precise
+- concise
+- implementation focused
 
-lib/repositories
-
-Database access layer
-
-lib/db/schema
-
-Drizzle ORM schema definitions
-
-components
-
-UI components
-
-Never access the database directly from API routes.
-
-Always use services and repositories.
-Important Repository Constraint
-
-The repository contains duplicate folder trees:
-
-src/
-
-src/src/
-
-This duplication exists due to historical refactors.
-
-Do NOT restructure or delete folders.
-
-Always confirm which path is active before editing.
-AI Layer
-
-Current AI-related locations:
-
-app/api/ai/
-
-lib/services/ai/
-
-lib/services/search/
-
-lib/ai/
-
-Existing functionality includes:
-
-    job embeddings
-    hybrid search
-    matcher services
-    AI API endpoints
-
-However the AI layer is not fully production ready.
-
-Target capabilities:
-
-    embedding pipelines
-    vector search
-    semantic job search
-    candidate ↔ job matching
-    resume analysis
-    recruiter insights
-
-Development Rules
-
-Do NOT:
-
-    refactor the whole project
-    change the tech stack
-    rewrite authentication
-    change database schema without reason
-    restructure directories
-
-Prefer:
-
-    additive development
-    minimal changes
-    isolated modules
-
-Workflow Rules
-
-Before implementing features:
-
-    audit relevant files
-    propose a short implementation plan
-    wait for confirmation
-
-Never automatically implement multiple features at once.
-
+Avoid generic explanations.
+Focus on actionable engineering decisions.

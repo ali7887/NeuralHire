@@ -2,8 +2,19 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
+import { requireUser } from "@/lib/auth/require-user";
+import { extractTextFromPdf } from "@/lib/utils/pdf-parser";
+import { resumeEmbeddingService } from "@/lib/services/ai/resume-embedding.service";
 
 export async function POST(req: Request) {
+  let user: { userId: string; role: string };
+
+  try {
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
 
@@ -39,9 +50,19 @@ export async function POST(req: Request) {
 
     const publicPath = `/uploads/resumes/${fileName}`;
 
-    return NextResponse.json({
-      path: publicPath,
-    });
+    let embeddingStored = false;
+
+    try {
+      const text = await extractTextFromPdf(buffer);
+      if (text.length > 0) {
+        await resumeEmbeddingService.generateAndStore(user.userId, text);
+        embeddingStored = true;
+      }
+    } catch (embeddingError) {
+      console.error("[RESUME_EMBEDDING_ERROR]", embeddingError);
+    }
+
+    return NextResponse.json({ path: publicPath, embeddingStored });
 
   } catch (error) {
     console.error(error);
